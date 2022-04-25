@@ -1,0 +1,14 @@
+{
+  "name": "The Graph Mainnet GraphQL Schema",
+  "extensions": {
+    "endpoints": {
+      "The Graph Mainnet GraphQL Endpoint": {
+        "url": "https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-mainnet",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": false
+      }
+    }
+  }
+}
