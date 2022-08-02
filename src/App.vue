@@ -25,8 +25,18 @@
     </v-app-bar>
 
     <v-main>
-      <IndexerCurrentState/>
-      <SubgraphsTable/>
+      <tr>
+        <td  class="mx-4">
+          <v-text-field
+              v-model="indexer"
+              label="Indexer"
+              class="mx-6"
+              @change="updateAllocations"
+          ></v-text-field>
+        </td>
+      </tr>
+      <IndexerCurrentState :indexer="indexer"/>
+      <SubgraphsTable :indexingRewardCut="indexingRewardCut"/>
     </v-main>
     <v-footer
     dark
@@ -59,18 +69,86 @@
 <script>
 import SubgraphsTable from "@/components/SubgraphsTable";
 import IndexerCurrentState from "@/components/IndexerCurrentState";
+import gql from "graphql-tag";
 
 export default {
   name: 'indexer-tools',
+  apollo: {
+    graphNetwork: {
+      query: gql`query{
+        graphNetwork(id: 1){
+          totalTokensSignalled
+          networkGRTIssuance
+          totalSupply
+        }
+      }`,
+      update(data) {
+        let BigNumber = this.$store.state.bigNumber;
 
+        data.graphNetwork.pctIssuancePerBlock = new BigNumber(this.$store.state.web3.utils.fromWei(data.graphNetwork.networkGRTIssuance.toString()).toString()).minus(1);
+        data.graphNetwork.pctIssuancePerYear = new BigNumber(data.graphNetwork.pctIssuancePerBlock).plus(1).pow(2354250).minus(1);
+
+        data.graphNetwork.issuancePerBlock = data.graphNetwork.pctIssuancePerBlock.multipliedBy(data.graphNetwork.totalSupply);
+        data.graphNetwork.issuancePerYear = data.graphNetwork.pctIssuancePerYear.multipliedBy(data.graphNetwork.totalSupply);
+
+        this.$store.state.graphNetwork = data.graphNetwork;
+        return data.graphNetwork;
+      },
+    },
+    indexerCut: {
+      query: gql`query indexercut($indexer: String!){
+        indexer(id: $indexer){
+          indexingRewardCut
+        }
+      }`,
+      variables() {
+        return {
+          indexer: this.indexer
+        }
+      },
+      update(data) {
+        console.log(data);
+        this.$store.state.indexingRewardCut = data.indexer.indexingRewardCut;
+        this.indexingRewardCut = data.indexer.indexingRewardCut;
+        return data.indexer;
+      },
+    },
+  },
   components: {
     IndexerCurrentState,
     SubgraphsTable,
   },
+  methods: {
+    updateAllocations(){
+      this.$store.state.indexer = this.indexer;
+      this.$cookies.set("indexer",this.indexer);
+    },
+    messageDaughter(message) {
+      this.messagedaughter = message;
+    },
 
-  data: () => ({
-    //
-  }),
+    messageSon(message) {
+      this.messageson = message;
+    },
+
+    stopFighting() {
+      if (this.messagedaughter && this.messageson) {
+        return true;
+      }
+      return false;
+    },
+
+    momSaidChill() {
+      this.messagedaughter = '';
+      this.messageson = '';
+    },
+  },
+  data () {
+    return {
+      indexer: this.$store.state.indexer,
+      indexingRewardCut: 0,
+    }
+  },
 };
 </script>
 

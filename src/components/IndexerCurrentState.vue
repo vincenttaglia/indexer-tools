@@ -18,7 +18,7 @@
         loading-text="Loading... Please wait"
         mobile-breakpoint="0"
     >
-      <template v-slot:top>
+      <!--<template v-slot:top>
         <tr>
           <td  class="mx-4">
             <v-text-field
@@ -29,7 +29,7 @@
             ></v-text-field>
           </td>
         </tr>
-      </template>
+      </template>-->
       <template v-slot:item.subgraphDeployment.versions[0].subgraph.image="{ item }">
         <img :src="item.subgraphDeployment.versions[0].subgraph.image" width="25" height="25"/>
       </template>
@@ -83,44 +83,6 @@ import numeral from 'numeral';
 export default {
   name: "IndexerCurrentState",
   apollo: {
-    graphNetwork: {
-      query: gql`query{
-        graphNetwork(id: 1){
-          totalTokensSignalled
-          networkGRTIssuance
-          totalSupply
-        }
-      }`,
-      update (data) {
-        let BigNumber = this.$store.state.bigNumber;
-
-        data.graphNetwork.pctIssuancePerBlock = new BigNumber(this.$store.state.web3.utils.fromWei(data.graphNetwork.networkGRTIssuance.toString()).toString()).minus(1);
-        data.graphNetwork.pctIssuancePerYear = new BigNumber(data.graphNetwork.pctIssuancePerBlock).plus(1).pow(2354250).minus(1);
-
-        data.graphNetwork.issuancePerBlock = data.graphNetwork.pctIssuancePerBlock.multipliedBy(data.graphNetwork.totalSupply);
-        data.graphNetwork.issuancePerYear = data.graphNetwork.pctIssuancePerYear.multipliedBy(data.graphNetwork.totalSupply);
-
-        this.$store.state.graphNetwork = data.graphNetwork;
-        return data.graphNetwork;
-      },
-    },
-    indexerCut: {
-      query: gql`query indexer($indexer: String!){
-        indexer(id: $indexer){
-          indexingRewardCut
-        }
-      }`,
-      variables(){
-        return{
-          indexer: this.indexer
-        }
-      },
-      update (data) {
-        this.$store.state.indexingRewardCut = data.indexer.indexingRewardCut;
-
-        return data.indexer;
-      },
-    },
     allocations: {
       query: gql`query allocations($indexer: String!){
         allocations(where: {indexer: $indexer}, orderBy:createdAtBlockNumber, orderDirection:desc){
@@ -225,9 +187,11 @@ export default {
       sortBy: 'activeDuration',
       sortDesc: true,
       loading: true,
-      indexer: this.$store.state.indexer,
       moment: this.$moment,
     }
+  },
+  props: {
+    indexer: String,
   },
   computed: {
     headers () {

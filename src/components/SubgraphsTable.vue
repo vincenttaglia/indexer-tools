@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :key="this.indexingRewardCut">
     <v-data-table
         :headers="headers"
         :items="this.$store.state.subgraphs"
@@ -17,7 +17,6 @@
         :loading="this.loading"
         loading-text="Loading... Please wait"
         mobile-breakpoint="0"
-        :key="indexingRewardCut"
     >
       <template v-slot:top>
         <tr>
@@ -192,7 +191,6 @@ export default {
       sortBy: 'newapr',
       sortDesc: true,
       loading: true,
-      indexingRewardCut: this.$store.state.indexingRewardCut,
     }
   },
   computed: {
@@ -229,6 +227,9 @@ export default {
         { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
       ]
     },
+  },
+  props: {
+    indexingRewardCut: Number,
   },
   methods: {
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
@@ -271,7 +272,7 @@ export default {
       this.$store.state.subgraphs_per_page = this.subgraphs_per_page;
     },
     indexerCut: function(dailyRewards){
-      return Math.floor(dailyRewards * this.$store.state.indexingRewardCut / 1000000);
+      return Math.floor(dailyRewards * this.indexingRewardCut / 1000000);
     },
     customSort: function(items, index, isDesc) {
       items.sort((a, b) => {
