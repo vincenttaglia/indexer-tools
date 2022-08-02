@@ -12,7 +12,8 @@
         :footer-props="{
           'items-per-page-options': [10, 15, 20, 25, 30, 40, 50]
         }"
-        :items-per-page="15"
+        :items-per-page.sync="subgraphs_per_page"
+        @update:items-per-page="updateSubgraphsPerPage"
         :loading="this.loading"
         loading-text="Loading... Please wait"
         mobile-breakpoint="0"
@@ -180,6 +181,7 @@ export default {
       new_allocation: this.$store.state.new_allocation,
       web3: this.$store.state.web3,
       subgraphs: this.$store.state.subgraphs,
+      subgraphs_per_page: this.$store.state.subgraphs_per_page,
       numeral,
       sortBy: 'newapr',
       sortDesc: true,
@@ -254,6 +256,10 @@ export default {
           this.$store.state.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.new_allocation);
         }
       }
+    },
+    updateSubgraphsPerPage: function(){
+      this.$cookies.set("subgraphs_per_page", this.subgraphs_per_page);
+      this.$store.state.subgraphs_per_page = this.subgraphs_per_page;
     },
     customSort: function(items, index, isDesc) {
       items.sort((a, b) => {

@@ -12,7 +12,8 @@
         :footer-props="{
           'items-per-page-options': [5, 10, 15, 20, 25, 30, 40, 50]
         }"
-        :items-per-page="15"
+        :items-per-page.sync="allocations_per_page"
+        @update:items-per-page="updateAllocationsPerPage"
         :loading="this.loading"
         loading-text="Loading... Please wait"
         mobile-breakpoint="0"
@@ -198,6 +199,7 @@ export default {
       new_allocation: '100000',
       web3: this.$store.state.web3,
       allocations: this.$store.state.allocations,
+      allocations_per_page: this.$store.state.allocations_per_page,
       numeral,
       sortBy: 'activeDuration',
       sortDesc: true,
@@ -263,6 +265,10 @@ export default {
           .multipliedBy(
               new BigNumber(new BigNumber(allocatedTokens)).dividedBy(new BigNumber(stakedTokens))
           ).dp(0);
+    },
+    updateAllocationsPerPage: function(){
+      this.$cookies.set("allocations_per_page", this.allocations_per_page);
+      this.$store.state.allocations_per_page = this.allocations_per_page;
     },
     customSort: function(items, index, isDesc) {
       console.log(items);

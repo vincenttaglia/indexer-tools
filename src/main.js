@@ -32,6 +32,8 @@ const store = new Vuex.Store({
     allocations: [],
     indexer: Vue.$cookies.get("indexer") ? Vue.$cookies.get("indexer") : "0xeddd4ec5d3775de964416b7b9d4da885f530f90a",
     new_allocation: Vue.$cookies.get("new_allocation") ? Vue.$cookies.get("new_allocation") : "100000",
+    allocations_per_page: Vue.$cookies.get("allocations_per_page") ? parseInt(Vue.$cookies.get("allocations_per_page")) : 15,
+    subgraphs_per_page: Vue.$cookies.get("subgraphs_per_page") ? parseInt(Vue.$cookies.get("subgraphs_per_page")) : 15,
   },
   mutations: {
 
