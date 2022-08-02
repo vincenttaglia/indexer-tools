@@ -66,6 +66,9 @@
       <template v-slot:item.dailyrewards="{ item }">
         {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards))).format('0,0') }} GRT
       </template>
+      <template v-slot:item.dailyrewards_cut="{ item }">
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards_cut))).format('0,0') }} GRT
+      </template>
       <template v-slot:body.append>
 
       </template>
@@ -99,6 +102,23 @@ export default {
 
         this.$store.state.graphNetwork = data.graphNetwork;
         return data.graphNetwork;
+      },
+    },
+    indexerCut: {
+      query: gql`query indexer($indexer: String!){
+        indexer(id: $indexer){
+          indexingRewardCut
+        }
+      }`,
+      variables(){
+        return{
+          indexer: this.indexer
+        }
+      },
+      update (data) {
+        this.$store.state.indexingRewardCut = data.indexer.indexingRewardCut;
+
+        return data.indexer;
       },
     },
     allocations: {
@@ -163,6 +183,7 @@ export default {
             if (allocation.subgraphDeployment.signalledTokens > 0) {
               allocation.apr = this.apr(allocation.subgraphDeployment.signalledTokens, allocation.subgraphDeployment.stakedTokens);
               allocation.dailyrewards = this.dailyrewards(allocation.subgraphDeployment.signalledTokens, allocation.allocatedTokens, allocation.subgraphDeployment.stakedTokens);
+              allocation.dailyrewards_cut = this.indexerCut(allocation.dailyrewards);
 
             } else {
               allocation.apr = 0;
@@ -222,7 +243,8 @@ export default {
         { text: 'Created', value: 'createdAt' },
         { text: 'Allocation Duration', value: 'activeDuration'},
         { text: 'Current APR', value: 'apr'},
-        { text: 'Est Daily Rewards', value: 'dailyrewards'},
+        { text: 'Est Daily Rewards (Before Cut)', value: 'dailyrewards'},
+        { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
         {
           text: 'Current Signal',
           value: 'subgraphDeployment.signalledTokens',
@@ -266,6 +288,9 @@ export default {
               new BigNumber(new BigNumber(allocatedTokens)).dividedBy(new BigNumber(stakedTokens))
           ).dp(0);
     },
+    indexerCut: function(dailyRewards){
+        return Math.floor(dailyRewards * this.$store.state.indexingRewardCut / 1000000);
+    },
     updateAllocationsPerPage: function(){
       this.$cookies.set("allocations_per_page", this.allocations_per_page);
       this.$store.state.allocations_per_page = this.allocations_per_page;
@@ -284,6 +309,7 @@ export default {
             || index[0] == 'dailyrewards'
             || index[0] == 'activeDuration'
             || index[0] == 'allocatedTokens'
+            || index[0] == 'dailyrewards_cut'
         ) {
           if (!isDesc[0]) {
             return t(a, index[0]).safeObject - t(b, index[0]).safeObject;
@@ -309,7 +335,7 @@ export default {
       return items;
     },
     updateAllocations: function(){
-      //this.$store.state.indexer = this.indexer;
+      this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
     },
     readableDuration: function(seconds) {

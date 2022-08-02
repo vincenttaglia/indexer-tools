@@ -17,6 +17,7 @@
         :loading="this.loading"
         loading-text="Loading... Please wait"
         mobile-breakpoint="0"
+        :key="indexingRewardCut"
     >
       <template v-slot:top>
         <tr>
@@ -85,6 +86,9 @@
       <template v-slot:item.dailyrewards="{ item }">
         {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards))).format('0,0') }} GRT
       </template>
+      <template v-slot:item.dailyrewards_cut="{ item }">
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards_cut))).format('0,0') }} GRT
+      </template>
       <template v-slot:body.append>
 
       </template>
@@ -139,10 +143,12 @@ export default {
             data.subgraphs[i].apr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, "0");
             data.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.$store.state.new_allocation);
             data.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.$store.state.new_allocation);
+            data.subgraphs[i].dailyrewards_cut = this.indexerCut(data.subgraphs[i].dailyrewards);
           } else {
             data.subgraphs[i].apr = 0;
             data.subgraphs[i].newapr = 0;
             data.subgraphs[i].dailyrewards = 0;
+            data.subgraphs[i].dailyrewards_cut = 0;
           }
 
           // exclude duplicates
@@ -186,6 +192,7 @@ export default {
       sortBy: 'newapr',
       sortDesc: true,
       loading: true,
+      indexingRewardCut: this.$store.state.indexingRewardCut,
     }
   },
   computed: {
@@ -201,7 +208,8 @@ export default {
         { text: 'Created', value: 'currentVersion.subgraphDeployment.createdAt' },
         { text: 'Current APR', value: 'apr'},
         { text: 'New APR', value: 'newapr'},
-        { text: 'Est Daily Rewards', value: 'dailyrewards'},
+        { text: 'Est Daily Rewards (Before Cut)', value: 'dailyrewards'},
+        { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
         {
           text: 'Current Signal',
           value: 'currentSignalledTokens',
@@ -254,12 +262,16 @@ export default {
         if(subgraph.currentSignalledTokens > 0) {
           this.$store.state.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.new_allocation);
           this.$store.state.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.new_allocation);
+          this.$store.state.subgraphs[i].dailyrewards_cut = this.indexerCut(this.$store.state.subgraphs[i].dailyrewards);
         }
       }
     },
     updateSubgraphsPerPage: function(){
       this.$cookies.set("subgraphs_per_page", this.subgraphs_per_page);
       this.$store.state.subgraphs_per_page = this.subgraphs_per_page;
+    },
+    indexerCut: function(dailyRewards){
+      return Math.floor(dailyRewards * this.$store.state.indexingRewardCut / 1000000);
     },
     customSort: function(items, index, isDesc) {
       items.sort((a, b) => {
@@ -272,6 +284,7 @@ export default {
             || index[0] == 'apr'
             || index[0] == 'newapr'
             || index[0] == 'dailyrewards'
+            || index[0] == 'dailyrewards_cut'
         ) {
           if (!isDesc[0]) {
             return t(a, index[0]).safeObject - t(b, index[0]).safeObject;
