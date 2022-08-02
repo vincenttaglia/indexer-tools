@@ -12,7 +12,7 @@
         :footer-props="{
           'items-per-page-options': [5, 10, 15, 20, 25, 30, 40, 50]
         }"
-        :items-per-page="5"
+        :items-per-page="15"
         :loading="this.loading"
         loading-text="Loading... Please wait"
         mobile-breakpoint="0"
@@ -277,6 +277,7 @@ export default {
             || index[0] == 'newapr'
             || index[0] == 'dailyrewards'
             || index[0] == 'activeDuration'
+            || index[0] == 'allocatedTokens'
         ) {
           if (!isDesc[0]) {
             return t(a, index[0]).safeObject - t(b, index[0]).safeObject;
