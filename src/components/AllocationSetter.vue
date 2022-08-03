@@ -94,87 +94,11 @@
 
 
 <script>
-import gql from 'graphql-tag';
+//import gql from 'graphql-tag';
 import t from "typy";
 import numeral from 'numeral';
 export default {
   name: "SubgraphsTable",
-  apollo: {
-    subgraphs: {
-      query: gql`query subgraphs($skip: Int!){
-        subgraphs (skip: $skip){
-          id
-          displayName
-          createdAt
-          currentSignalledTokens
-          image
-          currentVersion{
-            subgraphDeployment{
-              ipfsHash
-              indexingRewardAmount
-              queryFeesAmount
-              stakedTokens
-              createdAt
-            }
-          }
-        }
-      }`,
-      variables(){
-        return{
-          skip: 0
-        }
-      },
-      update (data) {
-        for(let i = 0; i < data.subgraphs.length; i++){
-          let subgraph = data.subgraphs[i];
-
-          // proportion
-          if(subgraph.currentVersion.subgraphDeployment.stakedTokens > 0)
-            data.subgraphs[i].proportion = subgraph.currentSignalledTokens / subgraph.currentVersion.subgraphDeployment.stakedTokens;
-          else
-            data.subgraphs[i].proportion = 0;
-
-          // apr, new apr & daily rewards
-          if(subgraph.currentSignalledTokens > 0) {
-            data.subgraphs[i].apr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, "0");
-            data.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.$store.state.new_allocation);
-            data.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.$store.state.new_allocation);
-            data.subgraphs[i].dailyrewards_cut = this.indexerCut(data.subgraphs[i].dailyrewards);
-          } else {
-            data.subgraphs[i].apr = 0;
-            data.subgraphs[i].newapr = 0;
-            data.subgraphs[i].dailyrewards = 0;
-            data.subgraphs[i].dailyrewards_cut = 0;
-          }
-
-          // exclude duplicates
-          if(!this.$store.state.subgraph_ids.includes(subgraph.currentVersion.subgraphDeployment.ipfsHash)){
-            this.$store.state.subgraphs.push(subgraph);
-            this.$store.state.subgraph_ids.push(subgraph.currentVersion.subgraphDeployment.ipfsHash);
-          }
-
-        }
-        this.$store.state.subgraphCount += data.subgraphs.length;
-        console.log(this.$store.state.subgraphCount);
-        return data.subgraphs;
-      },
-      result ({ data, loading, networkStatus }) {
-        data;
-        loading;
-        networkStatus;
-        //console.log(data.subgraphs.length);
-        if(networkStatus == 7 && data.subgraphs.length == 100){
-          //this.$apollo.queries.subgraphs.setVariables({skip: this.$store.state.subgraphCount});
-          this.$apollo.queries.subgraphs.setOptions({
-            fetchPolicy: 'network-only'
-          });
-          this.$apollo.queries.subgraphs.refetch({skip: this.$store.state.subgraphCount});
-        }else{
-          this.loading = false;
-        }
-      },
-    },
-  },
   data () {
     return {
       search: '',

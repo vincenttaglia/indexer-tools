@@ -280,9 +280,7 @@ export default {
         return 0;
       if(this.indexingRewardCut == 1000000)
         return dailyRewards
-      let temp = dailyRewards.multipliedBy(this.indexingRewardCut).dividedBy(1000000).dp(0,1);
-      console.log(temp);
-      return temp;
+      return dailyRewards.multipliedBy(this.indexingRewardCut).dividedBy(1000000).dp(0,1);
     },
     customSort: function(items, index, isDesc) {
       items.sort((a, b) => {

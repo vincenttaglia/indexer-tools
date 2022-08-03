@@ -81,7 +81,7 @@
               </div>
             </v-stepper-content>
             <v-stepper-content step="3">
-              <AllocationSetter :indexer="indexer" :subgraphs-input="selectedAllocations" :key="rerenderComponent" />
+              <AllocationSetter :indexer="indexer" :subgraphs-input="selectedSubgraphs" :key="rerenderComponent" />
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
