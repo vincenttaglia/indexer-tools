@@ -166,7 +166,7 @@ export default {
         loading;
         networkStatus;
         //console.log(data.subgraphs.length);
-        if(data.subgraphs.length == 100){
+        if(networkStatus == 7 && data.subgraphs.length == 100){
           //this.$apollo.queries.subgraphs.setVariables({skip: this.$store.state.subgraphCount});
           this.$apollo.queries.subgraphs.setOptions({
             fetchPolicy: 'network-only'

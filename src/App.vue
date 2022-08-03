@@ -36,7 +36,7 @@
         </td>
       </tr>
       <IndexerCurrentState :indexer="indexer"/>
-      <SubgraphsTable :indexingRewardCut="indexingRewardCut"/>
+      <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut"/>
     </v-main>
     <v-footer
     dark
