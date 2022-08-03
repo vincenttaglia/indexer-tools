@@ -272,7 +272,7 @@ export default {
       this.$store.state.subgraphs_per_page = this.subgraphs_per_page;
     },
     indexerCut: function(dailyRewards){
-      return this.indexingRewardCut == 1000000 ? dailyRewards : Math.floor(dailyRewards * this.indexingRewardCut / 1000000);
+      return this.indexingRewardCut == 1000000 ? dailyRewards : dailyRewards.multipliedBy(this.indexingRewardCut).dividedBy(1000000).dp(0,1);
     },
     customSort: function(items, index, isDesc) {
       items.sort((a, b) => {

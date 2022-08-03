@@ -254,7 +254,7 @@ export default {
           ).dp(0);
     },
     indexerCut: function(dailyRewards){
-      return this.$store.state.indexingRewardCut == 1000000 ? dailyRewards : Math.floor(dailyRewards * this.$store.state.indexingRewardCut / 1000000);
+      return this.$store.state.indexingRewardCut == 1000000 ? dailyRewards : dailyRewards.multipliedBy(this.$store.state.indexingRewardCut).dividedBy(1000000).dp(0,1);
     },
     updateAllocationsPerPage: function(){
       this.$cookies.set("allocations_per_page", this.allocations_per_page);
