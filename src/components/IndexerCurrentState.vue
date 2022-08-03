@@ -150,6 +150,7 @@ export default {
             } else {
               allocation.apr = 0;
               allocation.dailyrewards = 0;
+              allocation.dailyrewards_cut = 0;
             }
 
             this.$store.state.allocations.push(allocation);
@@ -253,7 +254,7 @@ export default {
           ).dp(0);
     },
     indexerCut: function(dailyRewards){
-        return Math.floor(dailyRewards * this.$store.state.indexingRewardCut / 1000000);
+      return this.$store.state.indexingRewardCut == 1000000 ? dailyRewards : Math.floor(dailyRewards * this.indexingRewardCut / 1000000);
     },
     updateAllocationsPerPage: function(){
       this.$cookies.set("allocations_per_page", this.allocations_per_page);
