@@ -52,7 +52,7 @@
               </v-stepper-step>
             </v-stepper-header>
             <v-stepper-content step="1">
-              <IndexerCurrentState :indexer="indexer" selectable />
+              <IndexerCurrentState :indexer="indexer" selectable @allocations-selected="selectAllocations"/>
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
@@ -67,7 +67,7 @@
             </v-stepper-content>
 
             <v-stepper-content step="2">
-              <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" selectable />
+              <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" @subgraphs-selected="selectSubgraphs" selectable />
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
@@ -163,13 +163,13 @@
             class=" text-center white--text"
         >
           <v-card-text>
-            <strong>Allocation Remaining:</strong> {{ }}
+            <strong>Allocation Remaining: {{ numeral(web3.utils.fromWei(web3.utils.toBN(this.calculatedAvailableStake))).format('0,0') }}</strong>
           </v-card-text>
 
           <v-divider></v-divider>
 
           <v-card-text class="white--text">
-            <strong>Allocation Remaining:</strong> {{ }}
+            <strong>Allocation Remaining: {{ this.availableStake }}</strong>
           </v-card-text>
         </v-card>
       </v-footer>
@@ -181,6 +181,8 @@
 import SubgraphsTable from "@/components/SubgraphsTable";
 import IndexerCurrentState from "@/components/IndexerCurrentState";
 import gql from "graphql-tag";
+//import t from "typy";
+import numeral from 'numeral';
 
 export default {
   name: 'indexer-tools',
@@ -210,6 +212,7 @@ export default {
       query: gql`query indexercut($indexer: String!){
         indexer(id: $indexer){
           indexingRewardCut
+          availableStake
         }
       }`,
       variables() {
@@ -221,6 +224,7 @@ export default {
         console.log(data);
         this.$store.state.indexingRewardCut = data.indexer.indexingRewardCut;
         this.indexingRewardCut = data.indexer.indexingRewardCut;
+        this.availableStake = data.indexer.availableStake;
         return data.indexer;
       },
     },
@@ -234,12 +238,36 @@ export default {
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
     },
+    selectAllocations(allocations){
+      console.log(allocations);
+      this.selectedAllocations = allocations;
+    },
+    selectSubgraphs(subgraphs){
+      console.log(subgraphs);
+      this.selectedSubgraphs = subgraphs;
+    }
+  },
+  computed: {
+    calculatedAvailableStake() {
+      let BigNumber = this.$store.state.bigNumber;
+      let totalClosing = this.selectedAllocations.reduce((sum, cur) => sum.plus(cur.allocatedTokens), BigNumber(0));
+      console.log("Total Closing");
+      console.log(totalClosing);
+      //let totalOpening = this.selectedSubgraphs.reduce((sum,cur) => sum + cur);
+      return BigNumber(this.availableStake).plus(totalClosing);
+    }
   },
   data () {
     return {
       indexer: this.$store.state.indexer,
       indexingRewardCut: 0,
       currentStep: 1,
+      availableStake: 0,
+      web3: this.$store.state.web3,
+      numeral,
+      moment: this.$moment,
+      selectedAllocations: [],
+      selectedSubgraphs: [],
     }
   },
 };

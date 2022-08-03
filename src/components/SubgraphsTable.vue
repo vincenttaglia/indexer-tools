@@ -313,6 +313,11 @@ export default {
       return items;
     },
   },
+  watch: {
+    selected: function(value) {
+      this.$emit("subgraphs-selected", value);
+    }
+  }
 }
 </script>
 

@@ -18,6 +18,7 @@
         loading-text="Loading... Please wait"
         mobile-breakpoint="0"
         :show-select="this.selectable"
+        v-model="selected"
     >
       <!--<template v-slot:top>
         <tr>
@@ -190,6 +191,7 @@ export default {
       sortDesc: true,
       loading: true,
       moment: this.$moment,
+      selected: [],
     }
   },
   props: {
@@ -313,6 +315,11 @@ export default {
       return `${d}d ${h}h ${m}m`;
     }
   },
+  watch: {
+    selected: function(value) {
+      this.$emit("allocations-selected", value);
+    }
+  }
 }
 </script>
 
