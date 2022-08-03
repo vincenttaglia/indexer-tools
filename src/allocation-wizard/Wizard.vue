@@ -27,9 +27,10 @@
     <v-main>
       <template>
         <div>
-          <v-stepper alt-labels v-model="currentStep">
+          <v-stepper alt-labels non-linear v-model="currentStep">
             <v-stepper-header>
               <v-stepper-step
+                  editable
                   :complete="currentStep > 1"
                   step="1">
                 Close Allocations
@@ -38,6 +39,7 @@
               <v-divider></v-divider>
 
               <v-stepper-step
+                  editable
                   :complete="currentStep > 2"
                   step="2">
                 Open Allocations
@@ -45,70 +47,77 @@
 
               <v-divider></v-divider>
 
-              <v-stepper-step step="3">
+              <v-stepper-step editable step="3">
                 Review Choices
               </v-stepper-step>
             </v-stepper-header>
             <v-stepper-content step="1">
               <IndexerCurrentState :indexer="indexer" selectable />
-              <v-btn
-                  color="primary"
-                  @click="currentStep = 2"
-              >
-                Continue
-              </v-btn>
-              <v-btn text>
-                Cancel
-              </v-btn>
+              <div class="mt-12 mb-10 ml-5">
+                <v-btn
+                    color="primary"
+                    @click="currentStep = 2"
+                >
+                  Continue
+                </v-btn>
+                <v-btn text>
+                  Cancel
+                </v-btn>
+              </div>
             </v-stepper-content>
 
             <v-stepper-content step="2">
               <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" selectable />
-              <v-btn
-                  color="primary"
-                  @click="currentStep = 3"
-              >
-                Continue
-              </v-btn>
-              <v-btn text>
-                Cancel
-              </v-btn>
+              <div class="mt-12 mb-10 ml-5">
+                <v-btn
+                    color="primary"
+                    @click="currentStep = 3"
+                >
+                  Continue
+                </v-btn>
+                <v-btn text>
+                  Cancel
+                </v-btn>
+              </div>
             </v-stepper-content>
             <v-stepper-content step="3">
               <IndexerCurrentState :indexer="indexer" selectable />
-              <v-btn
-                  color="primary"
-                  @click="currentStep = 1"
-              >
-                Continue
-              </v-btn>
-              <v-btn text>
-                Cancel
-              </v-btn>
+              <div class="mt-12 mb-10 ml-5">
+                <v-btn
+                    color="primary"
+                    @click="currentStep = 1"
+                >
+                  Continue
+                </v-btn>
+                <v-btn text>
+                  Cancel
+                </v-btn>
+              </div>
+
             </v-stepper-content>
 
           </v-stepper>
 
           <v-stepper
               alt-labels
-              class="mt-12"
+              class=""
+              non-linear
+              v-model="currentStep"
           >
             <v-stepper-header>
-              <v-stepper-step step="1">
+              <v-stepper-step editable step="1" :complete="currentStep > 1">
                 Close Allocations
-                <small>Optional</small>
               </v-stepper-step>
 
               <v-divider></v-divider>
 
-              <v-stepper-step step="2">
+              <v-stepper-step editable step="2" :complete="currentStep > 2">
                 Open Allocations
-                <small>Optional</small>
               </v-stepper-step>
 
               <v-divider></v-divider>
 
-              <v-stepper-step step="3">
+              <v-stepper-step editable step="3" :complete="currentStep > 3">
                 Review Choices
               </v-stepper-step>
             </v-stepper-header>
@@ -141,6 +150,30 @@
       </v-card>
 
     </v-footer>
+    <v-card height="500px">
+      <v-footer
+          :fixed="true"
+          :padless="true"
+      >
+        <v-card
+            flat
+            tile
+            width="100%"
+            style="background-color: #5a3c57"
+            class=" text-center white--text"
+        >
+          <v-card-text>
+            <strong>Allocation Remaining:</strong> {{ }}
+          </v-card-text>
+
+          <v-divider></v-divider>
+
+          <v-card-text class="white--text">
+            <strong>Allocation Remaining:</strong> {{ }}
+          </v-card-text>
+        </v-card>
+      </v-footer>
+    </v-card>
   </v-app>
 </template>
 
@@ -218,5 +251,13 @@ export default {
 }
 .theme--dark.v-application{
   background: #1E1E1E!important;
+}
+.v-stepper__content{
+  padding: 0!important;
+}
+.v-stepper__header{
+  max-width: 800px;
+  margin: auto;
+  box-shadow: none!important;
 }
 </style>
