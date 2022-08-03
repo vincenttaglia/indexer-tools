@@ -2,7 +2,7 @@
   <div :key="this.indexingRewardCut">
     <v-data-table
         :headers="headers"
-        :items="this.$store.state.subgraphs"
+        :items="subgraphsInput"
         item-key="currentVersion.subgraphDeployment.ipfsHash"
         class="elevation-1"
         :search="search"
@@ -13,12 +13,7 @@
           'items-per-page-options': [10, 15, 20, 25, 30, 40, 50]
         }"
         :items-per-page.sync="subgraphs_per_page"
-        @update:items-per-page="updateSubgraphsPerPage"
-        :loading="this.loading"
-        loading-text="Loading... Please wait"
         mobile-breakpoint="0"
-        :show-select="this.selectable"
-        v-model="selected"
     >
       <template v-slot:top>
         <tr>
@@ -234,6 +229,7 @@ export default {
   props: {
     indexingRewardCut: Number,
     selectable: Boolean,
+    subgraphsInput: Array,
   },
   methods: {
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
@@ -276,13 +272,7 @@ export default {
       this.$store.state.subgraphs_per_page = this.subgraphs_per_page;
     },
     indexerCut: function(dailyRewards){
-      if(dailyRewards.isLessThan(1))
-        return 0;
-      if(this.indexingRewardCut == 1000000)
-        return dailyRewards
-      let temp = dailyRewards.multipliedBy(this.indexingRewardCut).dividedBy(1000000).dp(0,1);
-      console.log(temp);
-      return temp;
+      return this.indexingRewardCut == 1000000 ? dailyRewards : dailyRewards.multipliedBy(this.indexingRewardCut).dividedBy(1000000).dp(0,1);
     },
     customSort: function(items, index, isDesc) {
       items.sort((a, b) => {

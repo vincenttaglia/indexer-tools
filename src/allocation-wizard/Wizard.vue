@@ -42,13 +42,13 @@
                   editable
                   :complete="currentStep > 2"
                   step="2">
-                Open Allocations
+                Pick Subgraphs
               </v-stepper-step>
 
               <v-divider></v-divider>
 
               <v-stepper-step editable step="3">
-                Review Choices
+                Set Allocations
               </v-stepper-step>
             </v-stepper-header>
             <v-stepper-content step="1">
@@ -81,7 +81,7 @@
               </div>
             </v-stepper-content>
             <v-stepper-content step="3">
-              <IndexerCurrentState :indexer="indexer" selectable />
+              <AllocationSetter :indexer="indexer" :subgraphs-input="selectedAllocations" :key="rerenderComponent" />
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
@@ -112,13 +112,13 @@
               <v-divider></v-divider>
 
               <v-stepper-step editable step="2" :complete="currentStep > 2">
-                Open Allocations
+                Pick Subgraphs
               </v-stepper-step>
 
               <v-divider></v-divider>
 
               <v-stepper-step editable step="3" :complete="currentStep > 3">
-                Review Choices
+                Set Allocations
               </v-stepper-step>
             </v-stepper-header>
           </v-stepper>
@@ -183,6 +183,7 @@ import IndexerCurrentState from "@/components/IndexerCurrentState";
 import gql from "graphql-tag";
 //import t from "typy";
 import numeral from 'numeral';
+import AllocationSetter from "../components/AllocationSetter";
 
 export default {
   name: 'indexer-tools',
@@ -230,6 +231,7 @@ export default {
     },
   },
   components: {
+    AllocationSetter,
     IndexerCurrentState,
     SubgraphsTable,
   },
@@ -245,6 +247,7 @@ export default {
     selectSubgraphs(subgraphs){
       console.log(subgraphs);
       this.selectedSubgraphs = subgraphs;
+      this.rerenderComponent++;
     }
   },
   computed: {
@@ -268,6 +271,7 @@ export default {
       moment: this.$moment,
       selectedAllocations: [],
       selectedSubgraphs: [],
+      rerenderComponent: 0,
     }
   },
 };
