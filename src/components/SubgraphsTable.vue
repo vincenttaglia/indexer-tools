@@ -3,7 +3,7 @@
     <v-data-table
         :headers="headers"
         :items="this.$store.state.subgraphs"
-        item-key="name"
+        item-key="currentVersion.subgraphDeployment.ipfsHash"
         class="elevation-1"
         :search="search"
         :custom-sort="customSort"
@@ -17,6 +17,7 @@
         :loading="this.loading"
         loading-text="Loading... Please wait"
         mobile-breakpoint="0"
+        :show-select="this.selectable"
     >
       <template v-slot:top>
         <tr>
@@ -230,6 +231,7 @@ export default {
   },
   props: {
     indexingRewardCut: Number,
+    selectable: Boolean,
   },
   methods: {
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){

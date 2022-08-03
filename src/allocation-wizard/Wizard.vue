@@ -25,18 +25,96 @@
     </v-app-bar>
 
     <v-main>
-      <tr>
-        <td  class="mx-4">
-          <v-text-field
-              v-model="indexer"
-              label="Indexer"
-              class="mx-6"
-              @change="updateAllocations"
-          ></v-text-field>
-        </td>
-      </tr>
-      <IndexerCurrentState :indexer="indexer"/>
-      <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut"/>
+      <template>
+        <div>
+          <v-stepper alt-labels v-model="currentStep">
+            <v-stepper-header>
+              <v-stepper-step
+                  :complete="currentStep > 1"
+                  step="1">
+                Close Allocations
+              </v-stepper-step>
+
+              <v-divider></v-divider>
+
+              <v-stepper-step
+                  :complete="currentStep > 2"
+                  step="2">
+                Open Allocations
+              </v-stepper-step>
+
+              <v-divider></v-divider>
+
+              <v-stepper-step step="3">
+                Review Choices
+              </v-stepper-step>
+            </v-stepper-header>
+            <v-stepper-content step="1">
+              <IndexerCurrentState :indexer="indexer" selectable />
+              <v-btn
+                  color="primary"
+                  @click="currentStep = 2"
+              >
+                Continue
+              </v-btn>
+              <v-btn text>
+                Cancel
+              </v-btn>
+            </v-stepper-content>
+
+            <v-stepper-content step="2">
+              <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" selectable />
+              <v-btn
+                  color="primary"
+                  @click="currentStep = 3"
+              >
+                Continue
+              </v-btn>
+              <v-btn text>
+                Cancel
+              </v-btn>
+            </v-stepper-content>
+            <v-stepper-content step="3">
+              <IndexerCurrentState :indexer="indexer" selectable />
+              <v-btn
+                  color="primary"
+                  @click="currentStep = 1"
+              >
+                Continue
+              </v-btn>
+              <v-btn text>
+                Cancel
+              </v-btn>
+            </v-stepper-content>
+
+          </v-stepper>
+
+          <v-stepper
+              alt-labels
+              class="mt-12"
+          >
+            <v-stepper-header>
+              <v-stepper-step step="1">
+                Close Allocations
+                <small>Optional</small>
+              </v-stepper-step>
+
+              <v-divider></v-divider>
+
+              <v-stepper-step step="2">
+                Open Allocations
+                <small>Optional</small>
+              </v-stepper-step>
+
+              <v-divider></v-divider>
+
+              <v-stepper-step step="3">
+                Review Choices
+              </v-stepper-step>
+            </v-stepper-header>
+          </v-stepper>
+        </div>
+      </template>
     </v-main>
     <v-footer
         dark
@@ -123,30 +201,12 @@ export default {
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
     },
-    messageDaughter(message) {
-      this.messagedaughter = message;
-    },
-
-    messageSon(message) {
-      this.messageson = message;
-    },
-
-    stopFighting() {
-      if (this.messagedaughter && this.messageson) {
-        return true;
-      }
-      return false;
-    },
-
-    momSaidChill() {
-      this.messagedaughter = '';
-      this.messageson = '';
-    },
   },
   data () {
     return {
       indexer: this.$store.state.indexer,
       indexingRewardCut: 0,
+      currentStep: 1,
     }
   },
 };

@@ -123,25 +123,6 @@ export default {
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
     },
-    messageDaughter(message) {
-      this.messagedaughter = message;
-    },
-
-    messageSon(message) {
-      this.messageson = message;
-    },
-
-    stopFighting() {
-      if (this.messagedaughter && this.messageson) {
-        return true;
-      }
-      return false;
-    },
-
-    momSaidChill() {
-      this.messagedaughter = '';
-      this.messageson = '';
-    },
   },
   data () {
     return {
