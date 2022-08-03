@@ -274,7 +274,7 @@ export default {
       this.$store.state.subgraphs_per_page = this.subgraphs_per_page;
     },
     indexerCut: function(dailyRewards){
-      return Math.floor(dailyRewards * this.indexingRewardCut / 1000000);
+      return this.indexingRewardCut == 1000000 ? dailyRewards : Math.floor(dailyRewards * this.indexingRewardCut / 1000000);
     },
     customSort: function(items, index, isDesc) {
       items.sort((a, b) => {
