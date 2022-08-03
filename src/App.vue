@@ -153,8 +153,10 @@ export default {
 </script>
 
 <style>
-body{
-  background-color: #999;
-  color: #000;
+.v-data-table {
+  border-radius: 0px;
+}
+.theme--dark.v-application{
+  background: #1E1E1E!important;
 }
 </style>
