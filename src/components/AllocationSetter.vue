@@ -14,44 +14,9 @@
         }"
         :items-per-page.sync="subgraphs_per_page"
         mobile-breakpoint="0"
+        show-expand
+        :expanded="expandedItems"
     >
-      <template v-slot:top>
-        <tr>
-          <td  class="mx-4">
-            <v-text-field
-                v-model="search"
-                label="Search"
-                class="mx-4"
-            ></v-text-field>
-          </td>
-          <td class="mx-4">
-            <v-text-field
-                v-model="min_signal"
-                type="number"
-                label="Min Signal"
-                class="mx-4"
-            ></v-text-field>
-          </td>
-          <td>
-            <v-text-field
-                v-model="max_signal"
-                type="number"
-                label="Max Signal"
-                class="mx-4"
-            ></v-text-field>
-          </td>
-          <td>
-            <v-text-field
-                v-model="new_allocation"
-                type="number"
-                label="New Allocation"
-                @change="updateEstApr"
-                class="mx-4"
-            ></v-text-field>
-          </td>
-          <td colspan="4"></td>
-        </tr>
-      </template>
       <template v-slot:item.image="{ item }">
         <img :src="item.image" width="25" height="25"/>
       </template>
@@ -88,6 +53,27 @@
       <template v-slot:body.append>
 
       </template>
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length">
+          More info about {{ item.displayName }}
+          <v-slider
+              :max="web3.utils.fromWei(web3.utils.toBN(availableStake)) + allocationSets[item.currentVersion.subgraphDeployment.ipfsHash]"
+              min="0"
+              v-model="allocationSets[item.currentVersion.subgraphDeployment.ipfsHash]"
+              style="max-width: 500px"
+              :key="refreshSlider"
+          >
+            <template v-slot:prepend>
+              <v-text-field
+                  class="mt-0 pt-0"
+                  type="number"
+                  style="width: 100px"
+                  v-model="allocationSets[item.currentVersion.subgraphDeployment.ipfsHash]"
+              ></v-text-field>
+            </template>
+          </v-slider>
+        </td>
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -98,7 +84,7 @@
 import t from "typy";
 import numeral from 'numeral';
 export default {
-  name: "SubgraphsTable",
+  name: "AllocationSetter",
   data () {
     return {
       search: '',
@@ -113,6 +99,10 @@ export default {
       sortDesc: true,
       loading: true,
       selected: [],
+      expandedItems: this.subgraphsInput,
+      availableStake: this.calculatedAvailableStake,
+      allocationSets: {},
+      refreshSlider: 0,
     }
   },
   computed: {
@@ -154,6 +144,7 @@ export default {
     indexingRewardCut: Number,
     selectable: Boolean,
     subgraphsInput: Array,
+    calculatedAvailableStake: Object,
   },
   methods: {
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
@@ -238,6 +229,14 @@ export default {
   watch: {
     selected: function(value) {
       this.$emit("subgraphs-selected", value);
+    },
+    allocationSets: function(value){
+      this.refreshSlider++;
+      let theAvailableStake = this.calculatedAvailableStake;
+      for(const prop in value){
+        theAvailableStake = theAvailableStake.minus(value[prop]);
+      }
+      this.availableStake = theAvailableStake;
     }
   }
 }
