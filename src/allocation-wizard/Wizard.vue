@@ -5,6 +5,7 @@
         color="#5a3c57"
         dark
     >
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <div class="d-flex align-center ">
         <h1>
           Allocation Wizard
@@ -23,6 +24,30 @@
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
+
+    <v-navigation-drawer
+        v-model="drawer"
+        absolute
+        bottom
+        temporary
+    >
+      <v-list
+          nav
+          dense
+      >
+        <v-list-item-group
+            active-class="deep-purple--text text--accent-4"
+        >
+          <v-list-item href="/">
+            <v-list-item-title>Indexer Tools</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item href="/allocation-wizard.html">
+            <v-list-item-title>Allocation Wizard</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
 
     <v-main>
       <template>
@@ -317,6 +342,7 @@ export default {
       selectedSubgraphs: [],
       rerenderComponent: 0,
       allocations: {},
+      drawer: false,
     }
   },
 };
