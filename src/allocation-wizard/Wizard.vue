@@ -81,7 +81,7 @@
               </div>
             </v-stepper-content>
             <v-stepper-content step="3">
-              <AllocationSetter :indexer="indexer" :subgraphs-input="selectedSubgraphs" :calculated-available-stake="calculatedAvailableStake" :key="rerenderComponent" />
+              <AllocationSetter :indexer="indexer" :subgraphs-input="selectedSubgraphs" :calculated-available-stake="calculatedAvailableStake" @allocations-update="updateNewAllocations" :key="rerenderComponent" />
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
@@ -169,7 +169,7 @@
           <v-divider></v-divider>
 
           <v-card-text class="white--text">
-            <strong>Allocation Remaining: {{ this.availableStake }}</strong>
+            <strong>Allocation Remaining: {{ this.calculatedAvailableStake }}</strong>
           </v-card-text>
         </v-card>
       </v-footer>
@@ -248,6 +248,9 @@ export default {
       console.log(subgraphs);
       this.selectedSubgraphs = subgraphs;
       this.rerenderComponent++;
+    },
+    updateNewAllocations(allocations){
+      this.allocations = allocations;
     }
   },
   computed: {
@@ -256,8 +259,13 @@ export default {
       let totalClosing = this.selectedAllocations.reduce((sum, cur) => sum.plus(cur.allocatedTokens), BigNumber(0));
       console.log("Total Closing");
       console.log(totalClosing);
-      //let totalOpening = this.selectedSubgraphs.reduce((sum,cur) => sum + cur);
-      return BigNumber(this.availableStake).plus(totalClosing);
+      let totalOpening = 0;
+      for(const i in this.allocations){
+        totalOpening += this.allocations[i];
+      }
+      console.log(totalOpening);
+      //this.allocations.reduce((sum,cur) => sum + cur);
+      return BigNumber(this.availableStake).plus(totalClosing).minus(this.$store.state.web3.utils.toWei(totalOpening.toString()));
     }
   },
   data () {
@@ -272,6 +280,7 @@ export default {
       selectedAllocations: [],
       selectedSubgraphs: [],
       rerenderComponent: 0,
+      allocations: {},
     }
   },
 };

@@ -55,13 +55,14 @@
       </template>
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length">
-          More info about {{ item.displayName }}
           <v-slider
-              :max="web3.utils.fromWei(web3.utils.toBN(availableStake)) + allocationSets[item.currentVersion.subgraphDeployment.ipfsHash]"
+              :max="parseInt(web3.utils.fromWei(web3.utils.toBN(calculatedAvailableStake))) + (allocationSets[item.currentVersion.subgraphDeployment.ipfsHash] ? allocationSets[item.currentVersion.subgraphDeployment.ipfsHash] : 0)"
               min="0"
               v-model="allocationSets[item.currentVersion.subgraphDeployment.ipfsHash]"
               style="max-width: 500px"
               :key="refreshSlider"
+              @change="updateAllocations"
+              class="mt-4"
           >
             <template v-slot:prepend>
               <v-text-field
@@ -83,6 +84,7 @@
 //import gql from 'graphql-tag';
 import t from "typy";
 import numeral from 'numeral';
+import BigNumber from "bignumber.js";
 export default {
   name: "AllocationSetter",
   data () {
@@ -144,9 +146,12 @@ export default {
     indexingRewardCut: Number,
     selectable: Boolean,
     subgraphsInput: Array,
-    calculatedAvailableStake: Object,
+    calculatedAvailableStake: BigNumber,
   },
   methods: {
+    updateAllocations: function(){
+      this.$emit("allocations-update", this.allocationSets);
+    },
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
       let BigNumber = this.$store.state.bigNumber;
 
