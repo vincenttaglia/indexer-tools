@@ -42,13 +42,13 @@
         {{ numeral(item.apr).format('0,0.00') }}%
       </template>
       <template v-slot:item.newapr="{ item }">
-        {{ numeral(item.newapr).format('0,0.00') }}%
+        {{ numeral(metrics[item.currentVersion.subgraphDeployment.ipfsHash].newapr).format('0,0.00') }}
       </template>
       <template v-slot:item.dailyrewards="{ item }">
-        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards))).format('0,0') }} GRT
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(metrics[item.currentVersion.subgraphDeployment.ipfsHash].dailyrewards))).format('0,0') }} GRT
       </template>
       <template v-slot:item.dailyrewards_cut="{ item }">
-        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards_cut))).format('0,0') }} GRT
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(metrics[item.currentVersion.subgraphDeployment.ipfsHash].dailyrewards_cut))).format('0,0') }} GRT
       </template>
       <template v-slot:body.append>
 
@@ -141,16 +141,36 @@ export default {
         { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
       ]
     },
+    metrics(){
+      let metrics = {};
+      for(const i in this.allocationSets){
+        metrics[i].newapr = this.newapr(this.allocationSets[i].currentSignalledTokens.toString(), this.allocationSets[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.allocationSets[i] ? this.allocationSets[i].toString() : "0");
+        metrics[i].dailyrewards = this.dailyrewards(this.allocationSets[i].currentSignalledTokens.toString(), this.allocationSets[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.allocationSets[i] ? this.allocationSets[i].toString() : "0");
+        metrics[i].dailyrewards_cut = this.indexerCut(metrics[i].dailyrewards);
+      }
+      return metrics;
+    }
   },
   props: {
     indexingRewardCut: Number,
     selectable: Boolean,
     subgraphsInput: Array,
     calculatedAvailableStake: BigNumber,
+    closeAllocations: Array,
   },
   methods: {
     updateAllocations: function(){
       this.$emit("allocations-update", this.allocationSets);
+      //this.calculateMetrics();
+    },
+    calculateMetrics: function(){
+      let metrics = {};
+      for(const i in this.allocationSets){
+        metrics[i].newapr = this.newapr(this.allocationSets[i].currentSignalledTokens.toString(), this.allocationSets[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.allocationSets[i] ? this.allocationSets[i].toString() : "0");
+        metrics[i].dailyrewards = this.dailyrewards(this.allocationSets[i].currentSignalledTokens.toString(), this.allocationSets[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.allocationSets[i] ? this.allocationSets[i].toString() : "0");
+        metrics[i].dailyrewards_cut = this.indexerCut(this.metrics[i].dailyrewards);
+      }
+      return metrics;
     },
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
       let BigNumber = this.$store.state.bigNumber;
