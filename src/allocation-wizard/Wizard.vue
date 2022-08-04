@@ -62,12 +62,9 @@
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
-                    @click="currentStep = 2"
+                    @click="currentStep++"
                 >
                   Continue
-                </v-btn>
-                <v-btn text>
-                  Cancel
                 </v-btn>
               </div>
             </v-stepper-content>
@@ -77,12 +74,15 @@
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
-                    @click="currentStep = 3"
+                    @click="currentStep++"
                 >
                   Continue
                 </v-btn>
-                <v-btn text>
-                  Cancel
+                <v-btn
+                    text
+                    @click="currentStep--"
+                >
+                  Back
                 </v-btn>
               </div>
             </v-stepper-content>
@@ -91,12 +91,15 @@
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
-                    @click="currentStep = 4"
+                    @click="currentStep++"
                 >
                   Continue
                 </v-btn>
-                <v-btn text>
-                  Cancel
+                <v-btn
+                    text
+                    @click="currentStep--"
+                >
+                  Back
                 </v-btn>
               </div>
 
@@ -105,13 +108,10 @@
               <div class="mt-12 mb-10 ml-5">
                 <v-textarea disabled :value="buildCommands"></v-textarea>
                 <v-btn
-                    color="primary"
-                    @click="currentStep = 4"
+                    text
+                    @click="currentStep--"
                 >
-                  Continue
-                </v-btn>
-                <v-btn text>
-                  Cancel
+                  Back
                 </v-btn>
               </div>
 
