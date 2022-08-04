@@ -244,10 +244,8 @@ export default {
     },
   },
   watch: {
-    selected: function(value) {
-      this.$emit("subgraphs-selected", value);
-    },
     newAllocationSizes: function(value){
+      this.$emit("allocations-set", value);
       this.refreshSlider++;
       let theAvailableStake = this.calculatedAvailableStake;
       for(const prop in value){

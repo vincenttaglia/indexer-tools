@@ -47,8 +47,14 @@
 
               <v-divider></v-divider>
 
-              <v-stepper-step editable step="3">
+              <v-stepper-step editable step="3" :complete="currentStep > 3">
                 Set Allocations
+              </v-stepper-step>
+
+              <v-divider></v-divider>
+
+              <v-stepper-step editable step="4">
+                Execute Actions
               </v-stepper-step>
             </v-stepper-header>
             <v-stepper-content step="1">
@@ -85,7 +91,7 @@
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
-                    @click="currentStep = 1"
+                    @click="currentStep = 4"
                 >
                   Continue
                 </v-btn>
@@ -95,7 +101,21 @@
               </div>
 
             </v-stepper-content>
+            <v-stepper-content step="4">
+              <div class="mt-12 mb-10 ml-5">
+                <v-textarea disabled :value="buildCommands"></v-textarea>
+                <v-btn
+                    color="primary"
+                    @click="currentStep = 4"
+                >
+                  Continue
+                </v-btn>
+                <v-btn text>
+                  Cancel
+                </v-btn>
+              </div>
 
+            </v-stepper-content>
           </v-stepper>
 
           <v-stepper
@@ -119,6 +139,12 @@
 
               <v-stepper-step editable step="3" :complete="currentStep > 3">
                 Set Allocations
+              </v-stepper-step>
+
+              <v-divider></v-divider>
+
+              <v-stepper-step editable step="4">
+                Execute Actions
               </v-stepper-step>
             </v-stepper-header>
           </v-stepper>
@@ -266,6 +292,16 @@ export default {
       console.log(totalOpening);
       //this.allocations.reduce((sum,cur) => sum + cur);
       return BigNumber(this.availableStake).plus(totalClosing).minus(this.$store.state.web3.utils.toWei(totalOpening.toString()));
+    },
+    buildCommands(){
+      let commands = "";
+      for(const i in this.selectedAllocations){
+        commands += `graph indexer rules set ${this.selectedAllocations[i].subgraphDeployment.ipfsHash} allocationAmount 0 decisionBasis never\n`
+      }
+      for(const i in this.allocations){
+        commands += `graph indexer rules set ${i} allocationAmount ${this.allocations[i]} decisionBasis always\n`
+      }
+      return commands;
     }
   },
   data () {
