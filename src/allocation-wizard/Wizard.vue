@@ -106,7 +106,7 @@
             </v-stepper-content>
             <v-stepper-content step="4">
               <div class="mt-12 mb-10 ml-5">
-                <v-textarea disabled :value="buildCommands"></v-textarea>
+                <v-textarea readonly :value="buildCommands"></v-textarea>
                 <v-btn
                     text
                     @click="currentStep--"
