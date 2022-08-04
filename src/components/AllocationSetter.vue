@@ -2,17 +2,16 @@
   <div :key="this.indexingRewardCut">
     <v-data-table
         :headers="headers"
-        :items="subgraphsInput"
+        :items="subgraphsToAllocate"
         item-key="currentVersion.subgraphDeployment.ipfsHash"
         class="elevation-1"
-        :search="search"
         :custom-sort="customSort"
         :sort-by.sync="sortBy"
         :sort-desc.sync="sortDesc"
         :footer-props="{
           'items-per-page-options': [10, 15, 20, 25, 30, 40, 50]
         }"
-        :items-per-page.sync="subgraphs_per_page"
+        :items-per-page="subgraphs_per_page"
         mobile-breakpoint="0"
         show-expand
         :expanded="expandedItems"
@@ -42,13 +41,13 @@
         {{ numeral(item.apr).format('0,0.00') }}%
       </template>
       <template v-slot:item.newapr="{ item }">
-        {{ numeral(metrics[item.currentVersion.subgraphDeployment.ipfsHash].newapr).format('0,0.00') }}
+        {{ numeral(newAllocationCalcs[item.currentVersion.subgraphDeployment.ipfsHash].newapr).format('0,0.00') }}%
       </template>
       <template v-slot:item.dailyrewards="{ item }">
-        {{ numeral(web3.utils.fromWei(web3.utils.toBN(metrics[item.currentVersion.subgraphDeployment.ipfsHash].dailyrewards))).format('0,0') }} GRT
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(newAllocationCalcs[item.currentVersion.subgraphDeployment.ipfsHash].dailyrewards))).format('0,0') }} GRT
       </template>
       <template v-slot:item.dailyrewards_cut="{ item }">
-        {{ numeral(web3.utils.fromWei(web3.utils.toBN(metrics[item.currentVersion.subgraphDeployment.ipfsHash].dailyrewards_cut))).format('0,0') }} GRT
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(newAllocationCalcs[item.currentVersion.subgraphDeployment.ipfsHash].dailyrewards_cut))).format('0,0') }} GRT
       </template>
       <template v-slot:body.append>
 
@@ -56,9 +55,9 @@
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length">
           <v-slider
-              :max="parseInt(web3.utils.fromWei(web3.utils.toBN(calculatedAvailableStake))) + (allocationSets[item.currentVersion.subgraphDeployment.ipfsHash] ? allocationSets[item.currentVersion.subgraphDeployment.ipfsHash] : 0)"
+              :max="parseInt(web3.utils.fromWei(web3.utils.toBN(calculatedAvailableStake))) + (newAllocationSizes[item.currentVersion.subgraphDeployment.ipfsHash] ? newAllocationSizes[item.currentVersion.subgraphDeployment.ipfsHash] : 0)"
               min="0"
-              v-model="allocationSets[item.currentVersion.subgraphDeployment.ipfsHash]"
+              v-model="newAllocationSizes[item.currentVersion.subgraphDeployment.ipfsHash]"
               style="max-width: 500px"
               :key="refreshSlider"
               @change="updateAllocations"
@@ -69,7 +68,7 @@
                   class="mt-0 pt-0"
                   type="number"
                   style="width: 100px"
-                  v-model="allocationSets[item.currentVersion.subgraphDeployment.ipfsHash]"
+                  v-model="newAllocationSizes[item.currentVersion.subgraphDeployment.ipfsHash]"
               ></v-text-field>
             </template>
           </v-slider>
@@ -87,11 +86,15 @@ import numeral from 'numeral';
 import BigNumber from "bignumber.js";
 export default {
   name: "AllocationSetter",
+  props: {
+    indexingRewardCut: Number,
+    selectable: Boolean,
+    subgraphsToAllocate: Array,
+    calculatedAvailableStake: BigNumber,
+    allocationsToClose: Array,
+  },
   data () {
     return {
-      search: '',
-      max_signal: '',
-      min_signal: '',
       new_allocation: this.$store.state.new_allocation,
       web3: this.$store.state.web3,
       subgraphs: this.$store.state.subgraphs,
@@ -101,10 +104,10 @@ export default {
       sortDesc: true,
       loading: true,
       selected: [],
-      expandedItems: this.subgraphsInput,
+      expandedItems: this.subgraphsToAllocate,
       availableStake: this.calculatedAvailableStake,
-      allocationSets: {},
       refreshSlider: 0,
+      newAllocationSizes: {},
     }
   },
   computed: {
@@ -125,14 +128,6 @@ export default {
         {
           text: 'Current Signal',
           value: 'currentSignalledTokens',
-          filter: value => {
-            let BigNumber = this.$store.state.bigNumber;
-            if(parseInt(this.max_signal) && BigNumber(value).isGreaterThan(new BigNumber(this.$store.state.web3.utils.toWei(this.max_signal))))
-              return false;
-            if(parseInt(this.min_signal) && BigNumber(value).isLessThan(new BigNumber(this.$store.state.web3.utils.toWei(this.min_signal))))
-              return false;
-            return true;
-          },
         },
         { text: 'Current Proportion', value: 'proportion'},
         { text: 'Current Allocations', value: 'currentVersion.subgraphDeployment.stakedTokens'},
@@ -141,36 +136,25 @@ export default {
         { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
       ]
     },
-    metrics(){
-      let metrics = {};
-      for(const i in this.allocationSets){
-        metrics[i].newapr = this.newapr(this.allocationSets[i].currentSignalledTokens.toString(), this.allocationSets[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.allocationSets[i] ? this.allocationSets[i].toString() : "0");
-        metrics[i].dailyrewards = this.dailyrewards(this.allocationSets[i].currentSignalledTokens.toString(), this.allocationSets[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.allocationSets[i] ? this.allocationSets[i].toString() : "0");
-        metrics[i].dailyrewards_cut = this.indexerCut(metrics[i].dailyrewards);
+    newAllocationCalcs() {
+      let settings = {};
+      for(const i in this.subgraphsToAllocate){
+        let dailyrewards = this.dailyrewards(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash].toString() : "0");
+        let setting = {
+          size: this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] || 0,
+          newapr: this.newapr(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash].toString() : "0"),
+          dailyrewards: dailyrewards,
+          dailyrewards_cut: this.indexerCut(dailyrewards),
+        };
+        settings[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] = setting;
       }
-      return metrics;
-    }
-  },
-  props: {
-    indexingRewardCut: Number,
-    selectable: Boolean,
-    subgraphsInput: Array,
-    calculatedAvailableStake: BigNumber,
-    closeAllocations: Array,
+      return settings;
+    },
   },
   methods: {
     updateAllocations: function(){
-      this.$emit("allocations-update", this.allocationSets);
+      this.$emit("allocations-update", this.newAllocationSizes);
       //this.calculateMetrics();
-    },
-    calculateMetrics: function(){
-      let metrics = {};
-      for(const i in this.allocationSets){
-        metrics[i].newapr = this.newapr(this.allocationSets[i].currentSignalledTokens.toString(), this.allocationSets[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.allocationSets[i] ? this.allocationSets[i].toString() : "0");
-        metrics[i].dailyrewards = this.dailyrewards(this.allocationSets[i].currentSignalledTokens.toString(), this.allocationSets[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.allocationSets[i] ? this.allocationSets[i].toString() : "0");
-        metrics[i].dailyrewards_cut = this.indexerCut(this.metrics[i].dailyrewards);
-      }
-      return metrics;
     },
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
       let BigNumber = this.$store.state.bigNumber;
@@ -255,7 +239,7 @@ export default {
     selected: function(value) {
       this.$emit("subgraphs-selected", value);
     },
-    allocationSets: function(value){
+    newAllocationSizes: function(value){
       this.refreshSlider++;
       let theAvailableStake = this.calculatedAvailableStake;
       for(const prop in value){

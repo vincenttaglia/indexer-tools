@@ -81,7 +81,7 @@
               </div>
             </v-stepper-content>
             <v-stepper-content step="3">
-              <AllocationSetter :indexer="indexer" :subgraphs-input="selectedSubgraphs" :calculated-available-stake="calculatedAvailableStake" @allocations-update="updateNewAllocations" :close-allocations="selectedAllocations" :key="rerenderComponent" />
+              <AllocationSetter :indexing-reward-cut="indexingRewardCut" :subgraphs-to-allocate="selectedSubgraphs" :calculated-available-stake="calculatedAvailableStake" @allocations-update="updateNewAllocations" :allocations-to-close="selectedAllocations" :key="rerenderComponent" />
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
