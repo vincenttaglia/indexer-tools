@@ -137,12 +137,20 @@ export default {
       ]
     },
     newAllocationCalcs() {
+      let BigNumber = this.$store.state.bigNumber;
       let settings = {};
       for(const i in this.subgraphsToAllocate){
-        let dailyrewards = this.dailyrewards(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash].toString() : "0");
+        let thisAllocation = this.allocationsToClose.filter(e => e.subgraphDeployment.ipfsHash === this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash)[0];
+        let closingAllocationSize = "0";
+        if(thisAllocation != null){
+          closingAllocationSize = thisAllocation.allocatedTokens;
+        }
+        let futureStakedTokens = BigNumber(this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.stakedTokens).minus(closingAllocationSize);
+
+        let dailyrewards = this.dailyrewards(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), futureStakedTokens.toString(), this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash].toString() : "0");
         let setting = {
           size: this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] || 0,
-          newapr: this.newapr(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.stakedTokens.toString(), this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash].toString() : "0"),
+          newapr: this.newapr(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), futureStakedTokens.toString(), this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash].toString() : "0"),
           dailyrewards: dailyrewards,
           dailyrewards_cut: this.indexerCut(dailyrewards),
         };
