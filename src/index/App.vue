@@ -23,6 +23,89 @@
         <span class="mr-2">Made with ♥ by vincenttaglia.eth</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
+      <v-menu offset-y>
+        <template v-slot:activator="{ on }">
+          <v-btn
+              v-on="on"
+              text
+          >
+            {{ indexer.substring(0,6) }}...{{ indexer.substring(indexer.length - 4, indexer.length) }}
+          </v-btn>
+        </template>
+        <v-card>
+          <v-list dense>
+            <v-subheader>
+              Accounts
+              <v-spacer></v-spacer>
+              <v-dialog
+                  v-model="dialog"
+                  width="500"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-icon small clickable v-on="on">mdi-plus</v-icon>
+                </template>
+
+                <v-card>
+                  <v-card-title class="text-h5">
+                    Add Indexer Account
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-text-field
+                        v-model="newIndexerName"
+                        label="Indexer Name"
+                        class="mx-6"
+                    ></v-text-field>
+                    <v-text-field
+                        v-model="newIndexerAddress"
+                        label="Indexer Address"
+                        class="mx-6"
+                    ></v-text-field>
+                  </v-card-text>
+
+                  <v-divider></v-divider>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="addIndexerAccount(newIndexerAddress, newIndexerName)"
+
+                    >
+                      Add
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-subheader>
+            <v-divider></v-divider>
+            <!--<v-list-tile
+                v-for="indexerAccount in indexerAccounts"
+                :key="indexerAccount.address"
+            >
+              <v-list-tile-title>
+                {{ indexerAccount.name }}
+                {{ indexerAccount.address.substring(0,6) }}...{{ indexerAccount.address.substring(indexerAccount.address.length - 4, indexerAccount.address.length) }}
+              </v-list-tile-title>
+            </v-list-tile>-->
+            <v-list-item-group
+                color="primary"
+            >
+              <v-list-item
+                  v-for="(indexerAccount) in indexerAccounts"
+                  :key="indexerAccount.address"
+                  @click="updateIndexerAccount(indexerAccount)"
+              >
+                <v-list-item-content>
+                  <v-list-item-title v-text="indexerAccount.name"></v-list-item-title>
+                  {{ indexerAccount.address.substring(0,6) }}...{{ indexerAccount.address.substring(indexerAccount.address.length - 4, indexerAccount.address.length) }}
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-card>
+      </v-menu>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -148,12 +231,43 @@ export default {
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
     },
+    updateIndexerAccount(indexerAccount){
+      let activeAccount = this.indexerAccounts.find(e => e.active);
+      activeAccount.active = false;
+      indexerAccount.active = true;
+      this.indexer = indexerAccount.address;
+      this.$cookies.set("indexer", this.indexer);
+      this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+    },
+    addIndexerAccount(indexer, name){
+      console.log("test");
+      this.dialog = false;
+      console.log("test");
+      let newAccount = {
+        name: name,
+        address: indexer,
+        active: false,
+      }
+      if(!this.indexerAccounts.find(e => e.address === indexer)){
+        this.indexerAccounts.push(newAccount);
+        this.updateIndexerAccount(newAccount);
+        this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+      }
+
+      this.newIndexerName = "";
+      this.newIndexerAddress = "";
+
+    },
   },
   data () {
     return {
       indexer: this.$store.state.indexer,
       indexingRewardCut: 0,
       drawer: false,
+      indexerAccounts: this.$store.state.indexerAccounts,
+      newIndexerName: "",
+      newIndexerAddress: "",
+      dialog: false,
     }
   },
 };
