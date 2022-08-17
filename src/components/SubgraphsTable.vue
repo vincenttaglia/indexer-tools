@@ -141,9 +141,25 @@ export default {
 
           // apr, new apr & daily rewards
           if(subgraph.currentSignalledTokens > 0) {
+            let stakedTokens;
+
+            console.log(this.simulateClosingAllocations);
+
+            let allo = this.simulateClosingAllocations.find(e => {
+              return e.subgraphDeployment.ipfsHash === subgraph.currentVersion.subgraphDeployment.ipfsHash;
+            });
+
+            if(allo){
+              stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens - allo.allocatedTokens;
+              console.log(stakedTokens);
+              console.log(allo);
+              console.log(allo.allocatedTokens);
+            } else{
+              stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens;
+            }
             data.subgraphs[i].apr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, "0");
-            data.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.$store.state.new_allocation);
-            data.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.$store.state.new_allocation);
+            data.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, stakedTokens, this.new_allocation);
+            data.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, stakedTokens, this.new_allocation);
             data.subgraphs[i].dailyrewards_cut = this.indexerCut(data.subgraphs[i].dailyrewards);
           } else {
             data.subgraphs[i].apr = 0;
@@ -176,6 +192,7 @@ export default {
           this.$apollo.queries.subgraphs.refetch({skip: this.$store.state.subgraphCount});
         }else{
           this.loading = false;
+          this.updateEstApr();
         }
       },
     },
@@ -234,6 +251,7 @@ export default {
   props: {
     indexingRewardCut: Number,
     selectable: Boolean,
+    simulateClosingAllocations: Array,
   },
   methods: {
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
@@ -265,8 +283,24 @@ export default {
       for(let i = 0; i < this.$store.state.subgraphs.length; i++){
         let subgraph = this.$store.state.subgraphs[i];
         if(subgraph.currentSignalledTokens > 0) {
-          this.$store.state.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.new_allocation);
-          this.$store.state.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, this.new_allocation);
+          let stakedTokens;
+
+          console.log(this.simulateClosingAllocations);
+          let allo = this.simulateClosingAllocations.find(e => {
+            return e.subgraphDeployment.ipfsHash === subgraph.currentVersion.subgraphDeployment.ipfsHash;
+          });
+
+          if(allo){
+            stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens - allo.allocatedTokens;
+            console.log(stakedTokens);
+            console.log(allo);
+            console.log(allo.allocatedTokens);
+          } else{
+            stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens;
+          }
+
+          this.$store.state.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, stakedTokens, this.new_allocation);
+          this.$store.state.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, stakedTokens, this.new_allocation);
           this.$store.state.subgraphs[i].dailyrewards_cut = this.indexerCut(this.$store.state.subgraphs[i].dailyrewards);
         }
       }

@@ -95,7 +95,7 @@
             </v-stepper-content>
 
             <v-stepper-content step="2">
-              <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" @subgraphs-selected="selectSubgraphs" selectable />
+              <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="selectedAllocationsCount" :simulateClosingAllocations="selectedAllocations" @subgraphs-selected="selectSubgraphs" selectable />
               <div class="mt-12 mb-10 ml-5">
                 <v-btn
                     color="primary"
@@ -294,6 +294,7 @@ export default {
     selectAllocations(allocations){
       console.log(allocations);
       this.selectedAllocations = allocations;
+      this.selectedAllocationsCount++;
     },
     selectSubgraphs(subgraphs){
       console.log(subgraphs);
@@ -343,6 +344,7 @@ export default {
       rerenderComponent: 0,
       allocations: {},
       drawer: false,
+      selectedAllocationsCount: 0,
     }
   },
 };
