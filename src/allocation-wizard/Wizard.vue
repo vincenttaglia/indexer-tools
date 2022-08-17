@@ -38,7 +38,47 @@
               <v-subheader>
                 Accounts
                 <v-spacer></v-spacer>
-                <v-icon small clickable @click="addIndexerAccount()">mdi-plus</v-icon>
+                <v-dialog
+                    v-model="dialog"
+                    width="500"
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-icon small clickable v-on="on">mdi-plus</v-icon>
+                  </template>
+
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Add Indexer Account
+                    </v-card-title>
+
+                    <v-card-text>
+                      <v-text-field
+                          v-model="newIndexerName"
+                          label="Indexer Name"
+                          class="mx-6"
+                      ></v-text-field>
+                      <v-text-field
+                          v-model="newIndexerAddress"
+                          label="Indexer Address"
+                          class="mx-6"
+                      ></v-text-field>
+                    </v-card-text>
+
+                    <v-divider></v-divider>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                          color="primary"
+                          text
+                          @click="addIndexerAccount(newIndexerAddress, newIndexerName)"
+
+                      >
+                        Add
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </v-subheader>
               <v-divider></v-divider>
               <!--<v-list-tile
@@ -68,7 +108,6 @@
           </v-card>
         </v-menu>
       </v-toolbar-items>
-
     </v-app-bar>
 
     <v-navigation-drawer
@@ -343,11 +382,26 @@ export default {
       indexerAccount.active = true;
       this.indexer = indexerAccount.address;
       this.$cookies.set("indexer", this.indexer);
-      this.$cookies.set("indexerAccounts", this.indexerAccounts);
+      this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
     },
     addIndexerAccount(indexer, name){
-      indexer;
-      name;
+      console.log("test");
+      this.dialog = false;
+      console.log("test");
+      let newAccount = {
+        name: name,
+        address: indexer,
+        active: false,
+      }
+      if(!this.indexerAccounts.find(e => e.address === indexer)){
+        this.indexerAccounts.push(newAccount);
+        this.updateIndexerAccount(newAccount);
+        this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+      }
+
+      this.newIndexerName = "";
+      this.newIndexerAddress = "";
+
     },
     selectAllocations(allocations){
       console.log(allocations);
@@ -405,6 +459,9 @@ export default {
       selectedAllocationsCount: 0,
       activator: false,
       indexerAccounts: this.$store.state.indexerAccounts,
+      newIndexerName: "",
+      newIndexerAddress: "",
+      dialog: false,
     }
   },
 };
