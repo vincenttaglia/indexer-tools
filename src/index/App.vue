@@ -20,6 +20,8 @@
               v-on="on"
               text
           >
+            {{ indexerName }}
+            -
             {{ indexer.substring(0,6) }}...{{ indexer.substring(indexer.length - 4, indexer.length) }}
           </v-btn>
         </template>
@@ -27,6 +29,37 @@
           <v-list dense>
             <v-subheader>
               Accounts
+              <v-dialog
+                  v-model="editDialog"
+                  width="500"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-icon style="padding-left: 5px" small clickable v-on="on">mdi-pencil</v-icon>
+                </template>
+
+                <v-card>
+                  <v-card-title class="text-h5">
+                    Edit Saved Accounts
+                  </v-card-title>
+
+                  <v-card-text>
+                    <div v-for="indexerAccount in indexerAccounts" :key="indexerAccount.address" class="indexer-edit">
+                      <v-text-field
+                        v-model="indexerAccount.name"
+                        label="Indexer Name"
+                        @change="editIndexerAccounts"
+                      ></v-text-field>
+                      <v-text-field
+                          v-model="indexerAccount.address"
+                          label="Indexer Address"
+                          @change="editIndexerAccounts"
+                      ></v-text-field>
+                      <v-icon @click="deleteIndexerAccount(indexerAccount)" v-if="!indexerAccount.active">mdi-delete</v-icon>
+                    </div>
+                  </v-card-text>
+
+                </v-card>
+              </v-dialog>
               <v-spacer></v-spacer>
               <v-dialog
                   v-model="dialog"
@@ -123,6 +156,7 @@
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
+
     <v-main>
       <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer"></router-view>
     </v-main>
@@ -213,10 +247,26 @@ export default {
   components: {
 
   },
+  computed: {
+    indexerName() {
+      return this.indexerAccounts.find(e => e.active).name;
+    },
+  },
   methods: {
     updateAllocations(){
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
+    },
+    editIndexerAccounts(){
+      this.$store.state.indexerAccounts = this.indexerAccounts;
+      this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+    },
+    deleteIndexerAccount(indexerAccount){
+      let account = this.indexerAccounts.find(e => e.address === indexerAccount.address);
+      if(!account.active){
+        this.indexerAccounts = this.indexerAccounts.filter(function(e) { return e.address !== indexerAccount.address; });
+        this.editIndexerAccounts();
+      }
     },
     updateIndexerAccount(indexerAccount){
       let activeAccount = this.indexerAccounts.find(e => e.active);
@@ -256,6 +306,7 @@ export default {
       newIndexerName: "",
       newIndexerAddress: "",
       dialog: false,
+      editDialog: false,
     }
   },
 };
@@ -267,5 +318,11 @@ export default {
 }
 .theme--dark.v-application{
   background: #1E1E1E!important;
+}
+.indexer-edit{
+  padding: 10px 5px;
+}
+.indexer-edit:hover{
+  background-color: #323131;
 }
 </style>
