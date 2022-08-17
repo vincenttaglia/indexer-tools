@@ -14,15 +14,6 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn
-        href="https://vincenttaglia.eth.link/"
-        target="_blank"
-        text
-        class="hidden-sm-and-down"
-      >
-        <span class="mr-2">Made with ♥ by vincenttaglia.eth</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
       <v-menu offset-y>
         <template v-slot:activator="{ on }">
           <v-btn
@@ -121,31 +112,22 @@
         <v-list-item-group
             active-class="deep-purple--text text--accent-4"
         >
-          <v-list-item href="/">
-            <v-list-item-title>Indexer Tools</v-list-item-title>
-          </v-list-item>
 
-          <v-list-item href="/allocation-wizard.html">
-            <v-list-item-title>Allocation Wizard</v-list-item-title>
+
+          <v-list-item to="/">
+            Indexer Tools
+          </v-list-item>
+          <v-list-item to="/wizard">
+            Allocation Wizard
           </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-
     <v-main>
-      <tr>
-        <td  class="mx-4">
-          <v-text-field
-              v-model="indexer"
-              label="Indexer"
-              class="mx-6"
-              @change="updateAllocations"
-          ></v-text-field>
-        </td>
-      </tr>
-      <IndexerCurrentState :indexer="indexer"/>
-      <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" :simulateClosingAllocations="[]"/>
+      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer"></router-view>
     </v-main>
+
+
     <v-footer
     dark
     padless
@@ -157,6 +139,14 @@
         style="background-color:#5a3c57; width: 100%"
       >
         <v-card-text>
+          <v-btn
+              href="https://vincenttaglia.eth.link/"
+              target="_blank"
+              text
+              class="hidden-sm-and-down"
+          >
+            <span class="mr-2">Made with ♥ by vincenttaglia.eth</span>
+          </v-btn>
           <v-btn
             class="mx-4 white--text"
             icon
@@ -175,8 +165,6 @@
 </template>
 
 <script>
-import SubgraphsTable from "@/components/SubgraphsTable";
-import IndexerCurrentState from "@/components/IndexerCurrentState";
 import gql from "graphql-tag";
 
 export default {
@@ -223,8 +211,7 @@ export default {
     },
   },
   components: {
-    IndexerCurrentState,
-    SubgraphsTable,
+
   },
   methods: {
     updateAllocations(){
@@ -236,6 +223,7 @@ export default {
       activeAccount.active = false;
       indexerAccount.active = true;
       this.indexer = indexerAccount.address;
+      this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer", this.indexer);
       this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
     },

@@ -11,10 +11,17 @@ import t from 'typy';
 import BigNumber from "bignumber.js";
 import numeral from 'numeral';
 
+import VueCookies from 'vue-cookies';
+import OverviewBrowser from "../components/OverviewBrowser";
+import AllocationWizard from "../components/AllocationWizard";
+import VueRouter from "vue-router";
+
+
 Vue.use(Vuex)
 
-import VueCookies from 'vue-cookies';
 Vue.use(VueCookies);
+
+
 
 Vue.$cookies.config({
   expireTimes: "3650d",
@@ -40,6 +47,17 @@ const store = new Vuex.Store({
   mutations: {
 
   }
+})
+
+Vue.use(VueRouter)
+
+const routes = [
+  { path: '/', component: OverviewBrowser }, //, props: { indexer: store.state.indexer, indexingRewardCut: store.state.indexingRewardCut }
+  { path: '/wizard', component: AllocationWizard },
+]
+
+const router = new VueRouter({
+  routes // short for `routes: routes`
 })
 
 store.state.bigNumber = BigNumber;
@@ -98,5 +116,6 @@ new Vue({
   BigNumber,
   numeral,
   store,
+  router,
   render: h => h(App)
 }).$mount('#app')
