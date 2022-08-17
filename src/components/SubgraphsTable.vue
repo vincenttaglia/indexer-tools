@@ -279,6 +279,7 @@ export default {
     },
     updateEstApr: function(){
       this.$cookies.set("new_allocation", this.new_allocation);
+      this.$store.state.new_allocation = this.new_allocation;
 
       for(let i = 0; i < this.$store.state.subgraphs.length; i++){
         let subgraph = this.$store.state.subgraphs[i];
