@@ -143,17 +143,12 @@ export default {
           if(subgraph.currentSignalledTokens > 0) {
             let stakedTokens;
 
-            console.log(this.simulateClosingAllocations);
-
             let allo = this.simulateClosingAllocations.find(e => {
               return e.subgraphDeployment.ipfsHash === subgraph.currentVersion.subgraphDeployment.ipfsHash;
             });
 
             if(allo){
               stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens - allo.allocatedTokens;
-              console.log(stakedTokens);
-              console.log(allo);
-              console.log(allo.allocatedTokens);
             } else{
               stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens;
             }
@@ -286,16 +281,12 @@ export default {
         if(subgraph.currentSignalledTokens > 0) {
           let stakedTokens;
 
-          console.log(this.simulateClosingAllocations);
           let allo = this.simulateClosingAllocations.find(e => {
             return e.subgraphDeployment.ipfsHash === subgraph.currentVersion.subgraphDeployment.ipfsHash;
           });
 
           if(allo){
             stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens - allo.allocatedTokens;
-            console.log(stakedTokens);
-            console.log(allo);
-            console.log(allo.allocatedTokens);
           } else{
             stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens;
           }
