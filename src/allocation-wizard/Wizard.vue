@@ -14,15 +14,41 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn
-          href="https://vincenttaglia.eth.link/"
-          target="_blank"
-          text
-          class="hidden-sm-and-down"
-      >
-        <span class="mr-2">Made with ♥ by vincenttaglia.eth</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <v-toolbar-items class="hidden-sm-and-down">
+        <v-btn
+            href="https://vincenttaglia.eth.link/"
+            target="_blank"
+            text
+            class="hidden-sm-and-down"
+        >
+          <span class="mr-2">Made with ♥ by vincenttaglia.eth</span>
+          <v-icon>mdi-open-in-new</v-icon>
+        </v-btn>
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn
+                v-on="on"
+            >
+              {{ indexer }}
+            </v-btn>
+          </template>
+          <v-card>
+            <v-list dense>
+              <v-subheader>Notifications</v-subheader>
+              <v-divider></v-divider>
+              <v-list-tile
+                  v-for="notification in notifications"
+                  :key="`notification-key-${notification.id}`"
+              >
+                <v-list-tile-title>
+                  {{ notification.title }}
+                </v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-card>
+        </v-menu>
+      </v-toolbar-items>
+
     </v-app-bar>
 
     <v-navigation-drawer
@@ -322,7 +348,7 @@ export default {
     buildCommands(){
       let commands = "";
       for(const i in this.selectedAllocations){
-        commands += `graph indexer rules set ${this.selectedAllocations[i].subgraphDeployment.ipfsHash} allocationAmount 0 decisionBasis never\n`
+        commands += `graph indexer rules delete ${this.selectedAllocations[i].subgraphDeployment.ipfsHash}\n`
       }
       for(const i in this.allocations){
         commands += `graph indexer rules set ${i} allocationAmount ${this.allocations[i]} decisionBasis always\n`
@@ -345,6 +371,8 @@ export default {
       allocations: {},
       drawer: false,
       selectedAllocationsCount: 0,
+      activator: false,
+      indexerAccounts: [],
     }
   },
 };
