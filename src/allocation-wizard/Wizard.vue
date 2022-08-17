@@ -28,22 +28,42 @@
           <template v-slot:activator="{ on }">
             <v-btn
                 v-on="on"
+                text
             >
-              {{ indexer }}
+              {{ indexer.substring(0,6) }}...{{ indexer.substring(indexer.length - 4, indexer.length) }}
             </v-btn>
           </template>
           <v-card>
             <v-list dense>
-              <v-subheader>Notifications</v-subheader>
+              <v-subheader>
+                Accounts
+                <v-spacer></v-spacer>
+                <v-icon small clickable @click="addIndexerAccount()">mdi-plus</v-icon>
+              </v-subheader>
               <v-divider></v-divider>
-              <v-list-tile
-                  v-for="notification in notifications"
-                  :key="`notification-key-${notification.id}`"
+              <!--<v-list-tile
+                  v-for="indexerAccount in indexerAccounts"
+                  :key="indexerAccount.address"
               >
                 <v-list-tile-title>
-                  {{ notification.title }}
+                  {{ indexerAccount.name }}
+                  {{ indexerAccount.address.substring(0,6) }}...{{ indexerAccount.address.substring(indexerAccount.address.length - 4, indexerAccount.address.length) }}
                 </v-list-tile-title>
-              </v-list-tile>
+              </v-list-tile>-->
+              <v-list-item-group
+                  color="primary"
+              >
+                <v-list-item
+                    v-for="(indexerAccount) in indexerAccounts"
+                    :key="indexerAccount.address"
+                    @click="updateIndexerAccount(indexerAccount)"
+                >
+                  <v-list-item-content>
+                    <v-list-item-title v-text="indexerAccount.name"></v-list-item-title>
+                    {{ indexerAccount.address.substring(0,6) }}...{{ indexerAccount.address.substring(indexerAccount.address.length - 4, indexerAccount.address.length) }}
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
             </v-list>
           </v-card>
         </v-menu>
@@ -317,6 +337,18 @@ export default {
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
     },
+    updateIndexerAccount(indexerAccount){
+      let activeAccount = this.indexerAccounts.find(e => e.active);
+      activeAccount.active = false;
+      indexerAccount.active = true;
+      this.indexer = indexerAccount.address;
+      this.$cookies.set("indexer", this.indexer);
+      this.$cookies.set("indexerAccounts", this.indexerAccounts);
+    },
+    addIndexerAccount(indexer, name){
+      indexer;
+      name;
+    },
     selectAllocations(allocations){
       console.log(allocations);
       this.selectedAllocations = allocations;
@@ -372,7 +404,7 @@ export default {
       drawer: false,
       selectedAllocationsCount: 0,
       activator: false,
-      indexerAccounts: [],
+      indexerAccounts: this.$store.state.indexerAccounts,
     }
   },
 };
