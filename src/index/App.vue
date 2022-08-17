@@ -28,13 +28,13 @@
         <v-card>
           <v-list dense>
             <v-subheader>
-              Accounts
+              <h3>Accounts</h3>
               <v-dialog
                   v-model="editDialog"
                   width="500"
               >
                 <template v-slot:activator="{ on }">
-                  <v-icon style="padding-left: 5px" small clickable v-on="on">mdi-pencil</v-icon>
+                  <v-icon style="padding: 0 0 5px 8px" small clickable v-on="on">mdi-pencil</v-icon>
                 </template>
 
                 <v-card>
@@ -66,7 +66,7 @@
                   width="500"
               >
                 <template v-slot:activator="{ on }">
-                  <v-icon small clickable v-on="on">mdi-plus</v-icon>
+                  <v-icon small clickable v-on="on" style="padding-bottom: 5px">mdi-plus</v-icon>
                 </template>
 
                 <v-card>
@@ -104,15 +104,6 @@
               </v-dialog>
             </v-subheader>
             <v-divider></v-divider>
-            <!--<v-list-tile
-                v-for="indexerAccount in indexerAccounts"
-                :key="indexerAccount.address"
-            >
-              <v-list-tile-title>
-                {{ indexerAccount.name }}
-                {{ indexerAccount.address.substring(0,6) }}...{{ indexerAccount.address.substring(indexerAccount.address.length - 4, indexerAccount.address.length) }}
-              </v-list-tile-title>
-            </v-list-tile>-->
             <v-list-item-group
                 color="primary"
             >

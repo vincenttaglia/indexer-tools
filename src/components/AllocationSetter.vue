@@ -62,6 +62,7 @@
               :key="refreshSlider"
               @change="updateAllocations"
               class="mt-4"
+              step="10"
           >
             <template v-slot:prepend>
               <v-text-field
