@@ -798,7 +798,7 @@ export default {
         { text: 'Created', value: 'createdAt' },
         { text: 'Allocation Duration', value: 'activeDuration'},
         { text: 'Current APR', value: 'apr'},
-        { text: 'Est Daily Rewards (Before Cut)', value: 'dailyrewards'},
+        { text: 'Est Daily Rewards', value: 'dailyrewards'},
         { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
         { text: 'Pending Rewards', value: 'pending_rewards'},
         { text: 'Pending Rewards (After Cut)', value: 'pending_rewards_cut'},
