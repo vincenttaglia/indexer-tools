@@ -55,10 +55,14 @@
             ></v-text-field>
           </td>
           <td>
-            <v-switch
-                v-model="noRewardsToggle"
-                label="Show No Rewards Subgraphs"
-            ></v-switch>
+            <v-select
+                v-model="noRewardsFilter"
+                :items="[{text: 'Exclude Denied', action: 0}, {text:'Include Denied', action: 1}, {text: 'Only Denied', action: 2}]"
+                item-text="text"
+                item-value="action"
+                label="Subgraphs w/ Denied Rewards"
+                style="width: 200px;"
+            ></v-select>
           </td>
           <td colspan="4"></td>
         </tr>
@@ -224,7 +228,7 @@ export default {
       sortDesc: true,
       loading: true,
       selected: [],
-      noRewardsToggle: false,
+      noRewardsFilter: 0,
     }
   },
   computed: {
@@ -262,12 +266,17 @@ export default {
       ]
     },
     filteredSubgraphs(){
-      if(this.noRewardsToggle)
-        return this.subgraphs;
-      else
+      if(this.noRewardsFilter === 0){
         return this.subgraphs.filter((i) => {
           return !i.currentVersion.subgraphDeployment.deniedAt;
         });
+      } else if(this.noRewardsFilter === 2){
+        return this.subgraphs.filter((i) => {
+          return i.currentVersion.subgraphDeployment.deniedAt;
+        });
+      } else{
+        return this.subgraphs;
+      }
     },
   },
   props: {
