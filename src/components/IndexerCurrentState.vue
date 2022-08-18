@@ -83,10 +83,10 @@
         {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards_cut))).format('0,0') }} GRT
       </template>
       <template v-slot:item.pending_rewards="{ item }">
-        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards))).format('0,0') }}
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards))).format('0,0') }} GRT
       </template>
       <template v-slot:item.pending_rewards_cut="{ item }">
-        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards_cut))).format('0,0') }}
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards_cut))).format('0,0') }} GRT
       </template>
       <template v-slot:body.append>
 
@@ -176,13 +176,6 @@ export default {
             allocation.pending_rewards = 0;
             allocation.pending_rewards_cut = 0;
 
-            console.log(this.proxyContract);
-            this.proxyContract.methods.getRewards(allocation.id).call(function(error, value) {
-              console.log(value);
-              console.log(this.$store);
-              this.$store.state.allocations[i].pending_rewards = value;
-            });
-
             this.$store.state.allocations.push(allocation);
           }
         }
@@ -201,7 +194,9 @@ export default {
         }else{
           this.loading = false;
         }*/
+        console.log(networkStatus);
         this.loading = false;
+        this.getPendingAllocationRewards();
       },
     },
   },
@@ -853,6 +848,8 @@ export default {
             || index[0] == 'activeDuration'
             || index[0] == 'allocatedTokens'
             || index[0] == 'dailyrewards_cut'
+            || index[0] == 'pending_rewards'
+            || index[0] == 'pending_rewards_cut'
         ) {
           if (!isDesc[0]) {
             return t(a, index[0]).safeObject - t(b, index[0]).safeObject;
@@ -887,6 +884,19 @@ export default {
       let h = Math.floor(seconds % (3600*24) / 3600);
       let m = Math.floor(seconds % 3600 / 60);
       return `${d}d ${h}h ${m}m`;
+    },
+    getPendingAllocationRewards: function(){
+      for(let i = 0; i < this.allocations.length; i++) {
+        let allocation = this.allocations[i];
+        let indexerCut = this.indexerCut;
+        let bigNumber = this.$store.state.bigNumber;
+        this.proxyContract.methods.getRewards(allocation.id).call(function(error, value) {
+          console.log(value);
+          allocation.pending_rewards = value;
+          allocation.pending_rewards_cut = indexerCut(new bigNumber(value));
+        });
+      }
+      this.$store.state.allocations = this.allocations;
     },
   },
   watch: {
