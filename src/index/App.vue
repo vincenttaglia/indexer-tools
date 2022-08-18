@@ -320,4 +320,7 @@ export default {
 .indexer-edit:hover{
   background-color: #323131;
 }
+.v-badge__badge .v-icon{
+  font-size: 12px!important;
+}
 </style>
