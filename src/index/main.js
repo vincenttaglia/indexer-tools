@@ -15,6 +15,7 @@ import VueCookies from 'vue-cookies';
 import OverviewBrowser from "../components/OverviewBrowser";
 import AllocationWizard from "../components/AllocationWizard";
 import VueRouter from "vue-router";
+import BookmarkSupport from "../components/BookmarkSupport";
 
 
 Vue.use(Vuex)
@@ -54,6 +55,7 @@ Vue.use(VueRouter)
 const routes = [
   { path: '/', component: OverviewBrowser }, //, props: { indexer: store.state.indexer, indexingRewardCut: store.state.indexingRewardCut }
   { path: '/wizard', component: AllocationWizard },
+  { path: '/indexer/:urlIndexer', component: BookmarkSupport, props: true },
 ]
 
 const router = new VueRouter({

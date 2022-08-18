@@ -149,7 +149,7 @@
     </v-navigation-drawer>
 
     <v-main>
-      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer"></router-view>
+      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer" :addIndexerAccount="addIndexerAccount"></router-view>
     </v-main>
 
 
@@ -277,10 +277,13 @@ export default {
         address: indexer,
         active: false,
       }
-      if(!this.indexerAccounts.find(e => e.address === indexer)){
+      let lookup = this.indexerAccounts.find(e => e.address === indexer);
+      if(!lookup){
         this.indexerAccounts.push(newAccount);
         this.updateIndexerAccount(newAccount);
         this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+      }else{
+        this.updateIndexerAccount(lookup);
       }
 
       this.newIndexerName = "";
