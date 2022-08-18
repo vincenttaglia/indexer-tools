@@ -17,7 +17,18 @@
         :expanded="expandedItems"
     >
       <template v-slot:item.image="{ item }">
-        <img :src="item.image" width="25" height="25"/>
+        <v-badge
+            :value="item.currentVersion.subgraphDeployment.deniedAt"
+            bordered
+            color="error"
+            icon="mdi-currency-usd-off"
+            overlap
+            avatar
+        >
+          <v-avatar size="30">
+            <v-img :src="item.image" />
+          </v-avatar>
+        </v-badge>
       </template>
       <template v-slot:item.currentVersion.subgraphDeployment.createdAt="{ item }">
         <span :timestamp="item.currentVersion.subgraphDeployment.createdAt">{{ item.currentVersion.subgraphDeployment.createdAt | moment("MMM D, YYYY HH:mm") }}</span>
@@ -70,6 +81,7 @@
                   type="number"
                   style="width: 100px"
                   v-model="newAllocationSizes[item.currentVersion.subgraphDeployment.ipfsHash]"
+                  readonly
               ></v-text-field>
             </template>
           </v-slider>

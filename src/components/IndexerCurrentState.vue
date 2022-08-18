@@ -33,7 +33,18 @@
         </tr>
       </template>-->
       <template v-slot:item.subgraphDeployment.versions[0].subgraph.image="{ item }">
-        <img :src="item.subgraphDeployment.versions[0].subgraph.image" width="25" height="25"/>
+        <v-badge
+            :value="item.subgraphDeployment.deniedAt"
+            bordered
+            color="error"
+            icon="mdi-currency-usd-off"
+            overlap
+            avatar
+        >
+          <v-avatar size="30">
+            <v-img :src="item.subgraphDeployment.versions[0].subgraph.image" />
+          </v-avatar>
+        </v-badge>
       </template>
       <template v-slot:item.allocatedTokens="{ item }">
         {{ numeral(web3.utils.fromWei(item.allocatedTokens.toString())).format('0,0') }} GRT
@@ -106,6 +117,7 @@ export default {
             indexingRewardAmount
             signalledTokens
             queryFeesAmount
+            deniedAt
           }
           allocatedTokens
           effectiveAllocation
