@@ -131,17 +131,28 @@
             tile
             width="100%"
             style="background-color: #5a3c57"
-            class=" text-center white--text"
+            class="text-center white--text d-flex flex-row align-content-center justify-center"
         >
-          <v-card-text>
-            <strong>Allocation Remaining: {{ numeral(web3.utils.fromWei(web3.utils.toBN(this.calculatedAvailableStake))).format('0,0') }}</strong>
-          </v-card-text>
+          <v-card style="background-color: #5a3c57">
+            <v-card-text>
+              Closing Allocations APR:
+              <h1 class="pt-2">{{ numeral(web3.utils.fromWei(web3.utils.toBN(this.calculatedAvailableStake))).format('0,0') }}</h1>
+            </v-card-text>
+          </v-card>
+          <v-card style="background-color: #5a3c57">
+            <v-card-text>
+                Allocation Remaining:
+                <h1 class="pt-2">{{ numeral(web3.utils.fromWei(web3.utils.toBN(this.calculatedAvailableStake))).format('0,0') }}</h1>
+            </v-card-text>
+          </v-card>
 
-          <v-divider></v-divider>
+          <v-card style="background-color: #5a3c57">
+            <v-card-text>
+              Opening Allocations APR:
+              <h1 class="pt-2">{{ numeral(web3.utils.fromWei(web3.utils.toBN(this.calculatedAvailableStake))).format('0,0') }}</h1>
+            </v-card-text>
+          </v-card>
 
-          <v-card-text class="white--text">
-            <strong>Allocation Remaining: {{ this.calculatedAvailableStake }}</strong>
-          </v-card-text>
         </v-card>
       </v-footer>
     </v-card>
