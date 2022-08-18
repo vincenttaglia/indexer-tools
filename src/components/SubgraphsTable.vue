@@ -2,7 +2,7 @@
   <div :key="this.indexingRewardCut">
     <v-data-table
         :headers="headers"
-        :items="this.$store.state.subgraphs"
+        :items="filteredSubgraphs"
         item-key="currentVersion.subgraphDeployment.ipfsHash"
         class="elevation-1"
         :search="search"
@@ -53,6 +53,12 @@
                 @change="updateEstApr"
                 class="mx-4"
             ></v-text-field>
+          </td>
+          <td>
+            <v-switch
+                v-model="noRewardsToggle"
+                label="Show No Rewards Subgraphs"
+            ></v-switch>
           </td>
           <td colspan="4"></td>
         </tr>
@@ -120,6 +126,7 @@ export default {
               queryFeesAmount
               stakedTokens
               createdAt
+              deniedAt
             }
           }
         }
@@ -172,7 +179,7 @@ export default {
         }
         this.$store.state.subgraphCount += data.subgraphs.length;
         console.log(this.$store.state.subgraphCount);
-        return data.subgraphs;
+        return this.$store.state.subgraphs;
       },
       result ({ data, loading, networkStatus }) {
         data;
@@ -206,6 +213,7 @@ export default {
       sortDesc: true,
       loading: true,
       selected: [],
+      noRewardsToggle: false,
     }
   },
   computed: {
@@ -241,6 +249,14 @@ export default {
         { text: 'Total Indexing Rewards', value: 'currentVersion.subgraphDeployment.indexingRewardAmount'},
         { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
       ]
+    },
+    filteredSubgraphs(){
+      if(this.noRewardsToggle)
+        return this.subgraphs;
+      else
+        return this.subgraphs.filter((i) => {
+          return !i.currentVersion.subgraphDeployment.deniedAt;
+        });
     },
   },
   props: {
