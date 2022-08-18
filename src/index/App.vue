@@ -55,6 +55,7 @@
                           @change="editIndexerAccounts"
                       ></v-text-field>
                       <v-icon @click="deleteIndexerAccount(indexerAccount)" v-if="!indexerAccount.active">mdi-delete</v-icon>
+                      <span v-if="indexerAccount.active">(Active)</span>
                     </div>
                   </v-card-text>
 
