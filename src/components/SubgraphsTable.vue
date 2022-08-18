@@ -390,7 +390,5 @@ export default {
 </script>
 
 <style scoped>
-.v-badge__badge .v-icon{
-  font-size: 12px!important;
-}
+
 </style>

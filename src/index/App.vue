@@ -321,6 +321,6 @@ export default {
   background-color: #323131;
 }
 .v-badge__badge .v-icon{
-  font-size: 12px!important;
+  font-size: 14px!important;
 }
 </style>
