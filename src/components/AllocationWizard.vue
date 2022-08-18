@@ -259,6 +259,7 @@ export default {
     calculatedAvailableStake() {
       let BigNumber = this.$store.state.bigNumber;
       let totalClosing = this.selectedAllocations.reduce((sum, cur) => sum.plus(cur.allocatedTokens), BigNumber(0));
+      let totalRewards = this.selectedAllocations.reduce((sum, cur) => sum.plus(cur.pending_rewards), BigNumber(0));
       console.log("Total Closing");
       console.log(totalClosing);
       let totalOpening = 0;
@@ -267,7 +268,7 @@ export default {
       }
       console.log(totalOpening);
       //this.allocations.reduce((sum,cur) => sum + cur);
-      return BigNumber(this.availableStake).plus(totalClosing).minus(this.$store.state.web3.utils.toWei(totalOpening.toString()));
+      return BigNumber(this.availableStake).plus(totalClosing).plus(totalRewards).minus(this.$store.state.web3.utils.toWei(totalOpening.toString()));
     },
     buildCommands(){
       let commands = "";
