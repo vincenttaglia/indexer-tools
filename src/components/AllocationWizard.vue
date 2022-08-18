@@ -136,7 +136,7 @@
           <v-card style="background-color: #5a3c57">
             <v-card-text>
               Closing Allocations APR:
-              <h1 class="pt-2">{{ numeral(web3.utils.fromWei(web3.utils.toBN(this.calculatedAvailableStake))).format('0,0') }}</h1>
+              <h1 class="pt-2">{{ this.calculatedClosingAPR }}%</h1>
             </v-card-text>
           </v-card>
           <v-card style="background-color: #5a3c57">
@@ -167,6 +167,7 @@ import IndexerCurrentState from "@/components/IndexerCurrentState";
 import numeral from 'numeral';
 import AllocationSetter from "../components/AllocationSetter";
 import gql from "graphql-tag";
+import BigNumber from "bignumber.js";
 export default {
   name: "AllocationWizard.vue",
   props:{
@@ -183,7 +184,7 @@ export default {
       selectedAllocations: [],
       selectedSubgraphs: [],
       rerenderComponent: 0,
-      allocations: {},
+      newAllocationSizes: {},
       drawer: false,
       selectedAllocationsCount: 0,
       activator: false,
@@ -2250,7 +2251,7 @@ export default {
       this.rerenderComponent++;
     },
     updateNewAllocations(allocations){
-      this.allocations = allocations;
+      this.newAllocationSizes = allocations;
     },
     indexerCut(dailyRewards){
       return this.indexingRewardCut == 1000000 ? dailyRewards : dailyRewards.multipliedBy(this.$store.state.indexingRewardCut).dividedBy(1000000).dp(0,1);
@@ -2272,23 +2273,55 @@ export default {
       console.log("Total Closing");
       console.log(totalClosing);
       let totalOpening = 0;
-      for(const i in this.allocations){
-        totalOpening += this.allocations[i];
+      for(const i in this.newAllocationSizes){
+        totalOpening += this.newAllocationSizes[i];
       }
       console.log(totalOpening);
-      //this.allocations.reduce((sum,cur) => sum + cur);
+      //this.newAllocationSizes.reduce((sum,cur) => sum + cur);
       if(this.restakeRewards)
         return BigNumber(this.availableStake).plus(totalClosing).plus(totalRewards).minus(this.$store.state.web3.utils.toWei(totalOpening.toString()));
       else
         return BigNumber(this.availableStake).plus(totalClosing).plus(totalRewards).minus(this.indexerCut(new BigNumber(totalRewards))).minus(this.$store.state.web3.utils.toWei(totalOpening.toString()));
+    },
+    calculatedClosingAPR() {
+      let totalAllocatedStake = new BigNumber(0);
+      let totalRewardsPerYear = new BigNumber(0);
+      if(this.selectedAllocations.length > 0){
+        for(const i in this.selectedAllocations){
+          totalAllocatedStake = totalAllocatedStake.plus(this.selectedAllocations[i].allocatedTokens);
+
+          totalRewardsPerYear = totalRewardsPerYear.plus(new BigNumber(this.selectedAllocations[i].subgraphDeployment.signalledTokens)
+              .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
+              .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
+              .multipliedBy(
+                  new BigNumber(this.selectedAllocations[i].allocatedTokens).dividedBy(this.selectedAllocations[i].subgraphDeployment.stakedTokens)
+              )
+          );
+        }
+      }else{
+        return 0;
+      }
+
+      return totalRewardsPerYear.dividedBy(totalAllocatedStake).multipliedBy(100).dp(2);
+      /*
+      return new BigNumber(currentSignalledTokens)
+          .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
+          .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
+          .dividedBy(
+              new BigNumber(stakedTokens).plus(this.$store.state.web3.utils.toWei(new_allocation))
+          ).multipliedBy(100);
+       */
+    },
+    calculatedOpeningAPR() {
+      return false;
     },
     buildCommands(){
       let commands = "";
       for(const i in this.selectedAllocations){
         commands += `graph indexer rules delete ${this.selectedAllocations[i].subgraphDeployment.ipfsHash}\n`
       }
-      for(const i in this.allocations){
-        commands += `graph indexer rules set ${i} allocationAmount ${this.allocations[i]} decisionBasis always\n`
+      for(const i in this.newAllocationSizes){
+        commands += `graph indexer rules set ${i} allocationAmount ${this.newAllocationSizes[i]} decisionBasis always\n`
       }
       return commands;
     },

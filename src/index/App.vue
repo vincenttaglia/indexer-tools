@@ -150,7 +150,7 @@
     </v-navigation-drawer>
 
     <v-main>
-      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer" :addIndexerAccount="addIndexerAccount"></router-view>
+      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer" :key="indexer" :addIndexerAccount="addIndexerAccount"></router-view>
     </v-main>
 
 
