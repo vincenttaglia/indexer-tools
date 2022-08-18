@@ -82,6 +82,12 @@
       <template v-slot:item.dailyrewards_cut="{ item }">
         {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards_cut))).format('0,0') }} GRT
       </template>
+      <template v-slot:item.pending_rewards="{ item }">
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards))).format('0,0') }}
+      </template>
+      <template v-slot:item.pending_rewards_cut="{ item }">
+        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards_cut))).format('0,0') }}
+      </template>
       <template v-slot:body.append>
 
       </template>
@@ -167,6 +173,16 @@ export default {
               allocation.dailyrewards_cut = 0;
             }
 
+            allocation.pending_rewards = 0;
+            allocation.pending_rewards_cut = 0;
+
+            console.log(this.proxyContract);
+            this.proxyContract.methods.getRewards(allocation.id).call(function(error, value) {
+              console.log(value);
+              console.log(this.$store);
+              this.$store.state.allocations[i].pending_rewards = value;
+            });
+
             this.$store.state.allocations.push(allocation);
           }
         }
@@ -204,6 +220,547 @@ export default {
       loading: true,
       moment: this.$moment,
       selected: [],
+      proxyContractABI: [
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "param",
+              "type": "string"
+            }
+          ],
+          "name": "ParameterUpdated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "indexer",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "allocationID",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "epoch",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "RewardsAssigned",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "indexer",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "allocationID",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "epoch",
+              "type": "uint256"
+            }
+          ],
+          "name": "RewardsDenied",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "subgraphDeploymentID",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "sinceBlock",
+              "type": "uint256"
+            }
+          ],
+          "name": "RewardsDenylistUpdated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "controller",
+              "type": "address"
+            }
+          ],
+          "name": "SetController",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "accRewardsPerSignal",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "accRewardsPerSignalLastBlockUpdated",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IGraphProxy",
+              "name": "_proxy",
+              "type": "address"
+            }
+          ],
+          "name": "acceptProxy",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IGraphProxy",
+              "name": "_proxy",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "_data",
+              "type": "bytes"
+            }
+          ],
+          "name": "acceptProxyAndCall",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "name": "addressCache",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "controller",
+          "outputs": [
+            {
+              "internalType": "contract IController",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "name": "denylist",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_subgraphDeploymentID",
+              "type": "bytes32"
+            }
+          ],
+          "name": "getAccRewardsForSubgraph",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_subgraphDeploymentID",
+              "type": "bytes32"
+            }
+          ],
+          "name": "getAccRewardsPerAllocatedToken",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getAccRewardsPerSignal",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getNewRewardsPerSignal",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_allocationID",
+              "type": "address"
+            }
+          ],
+          "name": "getRewards",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_controller",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_issuanceRate",
+              "type": "uint256"
+            }
+          ],
+          "name": "initialize",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_subgraphDeploymentID",
+              "type": "bytes32"
+            }
+          ],
+          "name": "isDenied",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "issuanceRate",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_subgraphDeploymentID",
+              "type": "bytes32"
+            }
+          ],
+          "name": "onSubgraphAllocationUpdate",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_subgraphDeploymentID",
+              "type": "bytes32"
+            }
+          ],
+          "name": "onSubgraphSignalUpdate",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_controller",
+              "type": "address"
+            }
+          ],
+          "name": "setController",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_subgraphDeploymentID",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bool",
+              "name": "_deny",
+              "type": "bool"
+            }
+          ],
+          "name": "setDenied",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32[]",
+              "name": "_subgraphDeploymentID",
+              "type": "bytes32[]"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "_deny",
+              "type": "bool[]"
+            }
+          ],
+          "name": "setDeniedMany",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_issuanceRate",
+              "type": "uint256"
+            }
+          ],
+          "name": "setIssuanceRate",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_subgraphAvailabilityOracle",
+              "type": "address"
+            }
+          ],
+          "name": "setSubgraphAvailabilityOracle",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "subgraphAvailabilityOracle",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "name": "subgraphs",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "accRewardsForSubgraph",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "accRewardsForSubgraphSnapshot",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "accRewardsPerSignalSnapshot",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "accRewardsPerAllocatedToken",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_allocationID",
+              "type": "address"
+            }
+          ],
+          "name": "takeRewards",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "updateAccRewardsPerSignal",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ],
     }
   },
   props: {
@@ -211,6 +768,9 @@ export default {
     selectable: Boolean,
   },
   computed: {
+    proxyContract() {
+      return new this.$store.state.web3.eth.Contract(this.proxyContractABI, "0x9Ac758AB77733b4150A901ebd659cbF8cB93ED66");
+    },
     headers () {
       return [
         {
@@ -226,6 +786,8 @@ export default {
         { text: 'Current APR', value: 'apr'},
         { text: 'Est Daily Rewards (Before Cut)', value: 'dailyrewards'},
         { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
+        { text: 'Pending Rewards', value: 'pending_rewards'},
+        { text: 'Pending Rewards (After Cut)', value: 'pending_rewards_cut'},
         {
           text: 'Current Signal',
           value: 'subgraphDeployment.signalledTokens',
@@ -325,7 +887,7 @@ export default {
       let h = Math.floor(seconds % (3600*24) / 3600);
       let m = Math.floor(seconds % 3600 / 60);
       return `${d}d ${h}h ${m}m`;
-    }
+    },
   },
   watch: {
     selected: function(value) {
