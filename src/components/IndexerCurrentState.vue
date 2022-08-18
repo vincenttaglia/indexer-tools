@@ -83,10 +83,29 @@
         {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards_cut))).format('0,0') }} GRT
       </template>
       <template v-slot:item.pending_rewards="{ item }">
-        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards))).format('0,0') }} GRT
+        <v-progress-circular
+            indeterminate
+            color="purple"
+            v-if="item.pending_rewards === -1"
+        ></v-progress-circular>
+        <span
+          v-if="item.pending_rewards >= 0"
+          >
+          {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards))).format('0,0') }} GRT
+        </span>
+
       </template>
       <template v-slot:item.pending_rewards_cut="{ item }">
-        {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards_cut))).format('0,0') }} GRT
+        <v-progress-circular
+            indeterminate
+            color="purple"
+            v-if="item.pending_rewards_cut === -1"
+        ></v-progress-circular>
+        <span
+            v-if="item.pending_rewards >= 0"
+        >
+          {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards_cut))).format('0,0') }} GRT
+        </span>
       </template>
       <template v-slot:body.append>
 
@@ -173,8 +192,8 @@ export default {
               allocation.dailyrewards_cut = 0;
             }
 
-            allocation.pending_rewards = 0;
-            allocation.pending_rewards_cut = 0;
+            allocation.pending_rewards = -1;
+            allocation.pending_rewards_cut = -1;
 
             this.$store.state.allocations.push(allocation);
           }
