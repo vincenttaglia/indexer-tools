@@ -1,7 +1,7 @@
 <template>
   <v-main>
     <IndexerCurrentState :indexer="indexer"/>
-    <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" :simulateClosingAllocations="[]"/>
+    <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" @update-loading="updateLoading" :simulateClosingAllocations="[]"/>
   </v-main>
 </template>
 
@@ -26,6 +26,9 @@ export default {
     updateAllocations(){
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
+    },
+    updateLoading(){
+      this.$emit("update-loading", false);
     },
   },
   components: {

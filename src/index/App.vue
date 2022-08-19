@@ -1,5 +1,11 @@
 <template>
   <v-app>
+    <v-overlay :value="loading">
+      <v-progress-circular
+          indeterminate
+          size="64"
+      ></v-progress-circular>
+    </v-overlay>
     <v-app-bar
       app
       color="#5a3c57"
@@ -153,7 +159,7 @@
     </v-navigation-drawer>
 
     <v-main>
-      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer" :key="indexer" :addIndexerAccount="addIndexerAccount"></router-view>
+      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer" :key="indexer" :addIndexerAccount="addIndexerAccount" @update-loading="updateLoading"></router-view>
     </v-main>
 
 
@@ -249,6 +255,9 @@ export default {
     },
   },
   methods: {
+    updateLoading(){
+      this.loading = false;
+    },
     async reverse(address) {
       var lookup=address.toLowerCase().substr(2) + '.addr.reverse'
       var ResolverContract=await this.$store.state.web3.eth.ens.resolver(lookup);
@@ -334,6 +343,7 @@ export default {
       newIndexerAddress: "",
       dialog: false,
       editDialog: false,
+      loading: true,
     }
   },
 };

@@ -226,9 +226,9 @@ export default {
       numeral,
       sortBy: 'newapr',
       sortDesc: true,
-      loading: true,
       selected: [],
       noRewardsFilter: 0,
+      loading: true,
     }
   },
   computed: {
@@ -384,6 +384,9 @@ export default {
   watch: {
     selected: function(value) {
       this.$emit("subgraphs-selected", value);
+    },
+    loading: function(){
+      this.$emit("update-loading");
     }
   }
 }

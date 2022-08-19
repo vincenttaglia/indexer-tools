@@ -31,7 +31,7 @@
         </v-stepper-step>
       </v-stepper-header>
       <v-stepper-content step="1">
-        <IndexerCurrentState :indexer="indexer" selectable @allocations-selected="selectAllocations" v-on:avg-apr-set="updateAvgAPR" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
+        <IndexerCurrentState :indexer="indexer" selectable @allocations-selected="selectAllocations" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
         <div class="mt-12 mb-10 ml-5">
           <v-btn
               color="primary"
@@ -43,7 +43,7 @@
       </v-stepper-content>
 
       <v-stepper-content step="2">
-        <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="selectedAllocationsCount" :simulateClosingAllocations="selectedAllocations" @subgraphs-selected="selectSubgraphs" selectable />
+        <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="selectedAllocationsCount" :simulateClosingAllocations="selectedAllocations" @subgraphs-selected="selectSubgraphs" @update-loading="updateLoading" selectable />
         <div class="mt-12 mb-10 ml-5">
           <v-btn
               color="primary"
@@ -186,6 +186,7 @@ export default {
   props:{
     indexer: String,
     indexingRewardCut: Number,
+    loading: Boolean,
   },
   data () {
     return {
@@ -2399,6 +2400,9 @@ export default {
     },
   },
   methods: {
+    updateLoading(){
+      this.$emit("update-loading", false);
+    },
     updateTotalAllocatedStake(totalAllocatedStake){
       this.totalAllocatedStake = totalAllocatedStake;
     },
