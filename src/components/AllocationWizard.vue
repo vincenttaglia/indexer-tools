@@ -31,7 +31,7 @@
         </v-stepper-step>
       </v-stepper-header>
       <v-stepper-content step="1">
-        <IndexerCurrentState :indexer="indexer" selectable @allocations-selected="selectAllocations" v-on:avg-apr-set="updateAvgAPR"/>
+        <IndexerCurrentState :indexer="indexer" selectable @allocations-selected="selectAllocations" v-on:avg-apr-set="updateAvgAPR" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
         <div class="mt-12 mb-10 ml-5">
           <v-btn
               color="primary"
@@ -162,7 +162,7 @@
           <v-card>
             <v-card-text>
               After Overall APR:
-              <h1 class="pt-2">{{ numeral(this.calculatedOpeningAPR).format("0,0.00") }}%</h1>
+              <h1 class="pt-2">{{ numeral(this.calculatedAfterOpeningAPR).format("0,0.00") }}%</h1>
             </v-card-text>
           </v-card>
 
@@ -2360,7 +2360,8 @@ export default {
         }
       ],
       restakeRewards: true,
-      avgAPR: 0,
+      totalAllocatedStake: new BigNumber(0),
+      totalRewardsPerYear: new BigNumber(0),
     }
   },
   components: {
@@ -2398,12 +2399,16 @@ export default {
     },
   },
   methods: {
-    updateAvgAPR(avgAPR){
-      this.avgAPR = avgAPR;
+    updateTotalAllocatedStake(totalAllocatedStake){
+      this.totalAllocatedStake = totalAllocatedStake;
+    },
+    updateTotalRewardsPerYear(totalRewardsPerYear){
+      this.totalRewardsPerYear = totalRewardsPerYear;
     },
     updateAllocations(){
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
+      this.newAllocationSizes = {};
     },
     updateIndexerAccount(indexerAccount){
       let activeAccount = this.indexerAccounts.find(e => e.active);
@@ -2412,6 +2417,7 @@ export default {
       this.indexer = indexerAccount.address;
       this.$cookies.set("indexer", this.indexer);
       this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+      this.newAllocationSizes = {};
     },
     addIndexerAccount(indexer, name){
       console.log("test");
@@ -2436,11 +2442,13 @@ export default {
       console.log(allocations);
       this.selectedAllocations = allocations;
       this.selectedAllocationsCount++;
+      this.newAllocationSizes = {};
     },
     selectSubgraphs(subgraphs){
       console.log(subgraphs);
       this.selectedSubgraphs = subgraphs;
       this.rerenderComponent++;
+      this.newAllocationSizes = {};
     },
     updateNewAllocations(allocations){
       this.newAllocationSizes = allocations;
@@ -2477,37 +2485,55 @@ export default {
       else
         return BigNumber(this.availableStake).plus(totalClosing).plus(totalRewards).minus(this.indexerCut(new BigNumber(totalRewards))).minus(this.$store.state.web3.utils.toWei(totalOpening.toString()));
     },
-    calculatedClosingAPR() {
+    avgAPR(){
+      return this.totalRewardsPerYear.dividedBy(this.totalAllocatedStake.plus(this.availableStake)).multipliedBy(100).dp(2);
+    },
+    calculatedClosingStake(){
       let totalAllocatedStake = new BigNumber(0);
-      let totalRewardsPerYear = new BigNumber(0);
       if(this.selectedAllocations.length > 0){
         for(const i in this.selectedAllocations){
           totalAllocatedStake = totalAllocatedStake.plus(this.selectedAllocations[i].allocatedTokens);
-
+        }
+      }
+      return totalAllocatedStake;
+    },
+    calculatedClosingRewardsPerYear(){
+      let totalRewardsPerYear = new BigNumber(0);
+      if(this.selectedAllocations.length > 0){
+        for(const i in this.selectedAllocations){
           totalRewardsPerYear = totalRewardsPerYear.plus(
               new BigNumber(this.selectedAllocations[i].subgraphDeployment.signalledTokens)
-              .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
-              .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
-              .multipliedBy(
-                  new BigNumber(this.selectedAllocations[i].allocatedTokens).dividedBy(this.selectedAllocations[i].subgraphDeployment.stakedTokens)
-              )
+                  .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
+                  .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
+                  .multipliedBy(
+                      new BigNumber(this.selectedAllocations[i].allocatedTokens).dividedBy(this.selectedAllocations[i].subgraphDeployment.stakedTokens)
+                  )
           );
         }
-      }else{
-        return 0;
       }
-
-      return totalRewardsPerYear.dividedBy(totalAllocatedStake).multipliedBy(100).dp(2);
+      return totalRewardsPerYear;
     },
-    calculatedOpeningAPR() {
-      this.newAllocationSizes;
+    calculatedClosingAPR() {
+      return this.calculatedClosingRewardsPerYear.dividedBy(this.calculatedClosingStake).multipliedBy(100).dp(2);
+    },
+    calculatedOpeningStake(){
       let totalAllocatingStake = new BigNumber(0);
+      if(this.selectedSubgraphs.length > 0) {
+        for (const i in this.selectedSubgraphs) {
+          let newAllocationSize = this.newAllocationSizes[this.selectedSubgraphs[i].currentVersion.subgraphDeployment.ipfsHash];
+          if(newAllocationSize)
+            totalAllocatingStake = totalAllocatingStake.plus(newAllocationSize);
+        }
+      }
+      return totalAllocatingStake;
+    },
+    calculatedOpeningRewardsPerYear(){
       let totalRewardsPerYear = new BigNumber(0);
 
-      if(this.selectedSubgraphs.length > 0){
-        for(const i in this.selectedSubgraphs){
+      if(this.selectedSubgraphs.length > 0) {
+        for (const i in this.selectedSubgraphs) {
           let newAllocationSize = this.newAllocationSizes[this.selectedSubgraphs[i].currentVersion.subgraphDeployment.ipfsHash];
-          if(newAllocationSize) {
+          if (newAllocationSize) {
             let closingAllocation = this.selectedAllocations.find(e => {
               return e.subgraphDeployment.ipfsHash === this.selectedSubgraphs[i].currentVersion.subgraphDeployment.ipfsHash;
             });
@@ -2532,15 +2558,19 @@ export default {
 
             }
 
-            totalAllocatingStake = totalAllocatingStake.plus(newAllocationSize);
-
-
-
           }
         }
-        return totalRewardsPerYear.dividedBy(totalAllocatingStake).multipliedBy(100).dp(2);
       }
-      return 0;
+      return totalRewardsPerYear;
+    },
+    calculatedOpeningAPR() {
+      return this.calculatedOpeningRewardsPerYear.dividedBy(this.calculatedOpeningStake).multipliedBy(100).dp(2);
+    },
+    calculatedAfterOpeningAPR(){
+      let simulatedTotalStake = this.totalAllocatedStake.minus(this.calculatedClosingStake).plus(this.calculatedOpeningStake).plus(this.calculatedAvailableStake);
+      let simulatedTotalRewardsPerYear = this.totalRewardsPerYear.minus(this.calculatedClosingRewardsPerYear).plus(this.calculatedOpeningRewardsPerYear);
+
+      return simulatedTotalRewardsPerYear.dividedBy(simulatedTotalStake).multipliedBy(100).dp(2);
     },
     buildCommands(){
       let commands = "";

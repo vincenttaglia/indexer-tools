@@ -801,8 +801,10 @@ export default {
     dailyrewards_sum(){
       return this.allocations.reduce((sum, cur) => sum.plus(cur.dailyrewards), new BigNumber(0));
     },
-    avgAPR(){
-      let totalAllocatedStake = this.allocations.reduce((sum, cur) => sum.plus(cur.allocatedTokens), new BigNumber(0));
+    totalAllocatedStake(){
+      return this.allocations.reduce((sum, cur) => sum.plus(cur.allocatedTokens), new BigNumber(0));
+    },
+    totalRewardsPerYear(){
       let totalRewardsPerYear = new BigNumber(0);
       if(this.allocations.length > 0){
         for(const i in this.allocations){
@@ -816,11 +818,11 @@ export default {
                   )
           );
         }
-      }else{
-        return 0;
       }
-
-      return totalRewardsPerYear.dividedBy(totalAllocatedStake).multipliedBy(100).dp(2);
+      return totalRewardsPerYear;
+    },
+    avgAPR(){
+      return this.totalRewardsPerYear.dividedBy(this.totalAllocatedStake).multipliedBy(100).dp(2);
     },
     proxyContract() {
       return new this.$store.state.web3.eth.Contract(this.proxyContractABI, "0x9Ac758AB77733b4150A901ebd659cbF8cB93ED66");
@@ -964,7 +966,13 @@ export default {
     },
     avgAPR: function(value){
       this.$emit("avg-apr-set", value);
-    }
+    },
+    totalAllocatedStake: function(value){
+      this.$emit("allocated-stake-set", value);
+    },
+    totalRewardsPerYear: function(value){
+      this.$emit("yearly-rewards-set", value);
+    },
   }
 }
 </script>
