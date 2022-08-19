@@ -108,7 +108,24 @@
         </span>
       </template>
       <template v-slot:body.append>
-
+        <tr>
+          <td style="font-size: 11px"><strong>Totals</strong></td>
+          <td><strong>{{ allocations.length }} allocations</strong></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td><strong>{{ avgAPR }}%</strong></td>
+          <td><strong>{{ numeral(web3.utils.fromWei(web3.utils.toBN(dailyrewards_sum))).format('0,0') }} GRT</strong></td>
+          <td><strong>{{ numeral(web3.utils.fromWei(web3.utils.toBN(dailyrewards_cut_sum))).format('0,0') }} GRT</strong></td>
+          <td><strong>{{ numeral(web3.utils.fromWei(web3.utils.toBN(pending_rewards_sum))).format('0,0') }} GRT</strong></td>
+          <td><strong>{{ numeral(web3.utils.fromWei(web3.utils.toBN(pending_rewards_cut_sum))).format('0,0') }} GRT</strong></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
       </template>
     </v-data-table>
   </div>
@@ -118,6 +135,7 @@
 import gql from 'graphql-tag';
 import t from "typy";
 import numeral from 'numeral';
+import BigNumber from "bignumber.js";
 export default {
   name: "IndexerCurrentState",
   apollo: {
@@ -782,6 +800,39 @@ export default {
     selectable: Boolean,
   },
   computed: {
+    pending_rewards_cut_sum(){
+      return this.allocations.reduce((sum, cur) => sum.plus(cur.pending_rewards_cut), new BigNumber(0));
+    },
+    pending_rewards_sum(){
+      return this.allocations.reduce((sum, cur) => sum.plus(cur.pending_rewards), new BigNumber(0));
+    },
+    dailyrewards_cut_sum(){
+      return this.allocations.reduce((sum, cur) => sum.plus(cur.dailyrewards_cut), new BigNumber(0));
+    },
+    dailyrewards_sum(){
+      return this.allocations.reduce((sum, cur) => sum.plus(cur.dailyrewards), new BigNumber(0));
+    },
+    avgAPR(){
+      let totalAllocatedStake = this.allocations.reduce((sum, cur) => sum.plus(cur.allocatedTokens), new BigNumber(0));
+      let totalRewardsPerYear = new BigNumber(0);
+      if(this.allocations.length > 0){
+        for(const i in this.allocations){
+
+          totalRewardsPerYear = totalRewardsPerYear.plus(
+              new BigNumber(this.allocations[i].subgraphDeployment.signalledTokens)
+                  .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
+                  .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
+                  .multipliedBy(
+                      new BigNumber(this.allocations[i].allocatedTokens).dividedBy(this.allocations[i].subgraphDeployment.stakedTokens)
+                  )
+          );
+        }
+      }else{
+        return 0;
+      }
+
+      return totalRewardsPerYear.dividedBy(totalAllocatedStake).multipliedBy(100).dp(2);
+    },
     proxyContract() {
       return new this.$store.state.web3.eth.Contract(this.proxyContractABI, "0x9Ac758AB77733b4150A901ebd659cbF8cB93ED66");
     },
