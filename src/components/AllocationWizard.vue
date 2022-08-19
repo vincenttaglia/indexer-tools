@@ -149,7 +149,7 @@
           <v-card style="background-color: #5a3c57">
             <v-card-text>
               Opening Allocations APR:
-              <h1 class="pt-2">{{ numeral(web3.utils.fromWei(web3.utils.toBN(this.calculatedAvailableStake))).format('0,0') }}</h1>
+              <h1 class="pt-2">{{ this.calculatedOpeningAPR }}%</h1>
             </v-card-text>
           </v-card>
 
@@ -2290,7 +2290,8 @@ export default {
         for(const i in this.selectedAllocations){
           totalAllocatedStake = totalAllocatedStake.plus(this.selectedAllocations[i].allocatedTokens);
 
-          totalRewardsPerYear = totalRewardsPerYear.plus(new BigNumber(this.selectedAllocations[i].subgraphDeployment.signalledTokens)
+          totalRewardsPerYear = totalRewardsPerYear.plus(
+              new BigNumber(this.selectedAllocations[i].subgraphDeployment.signalledTokens)
               .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
               .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
               .multipliedBy(
@@ -2303,17 +2304,49 @@ export default {
       }
 
       return totalRewardsPerYear.dividedBy(totalAllocatedStake).multipliedBy(100).dp(2);
-      /*
-      return new BigNumber(currentSignalledTokens)
-          .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
-          .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
-          .dividedBy(
-              new BigNumber(stakedTokens).plus(this.$store.state.web3.utils.toWei(new_allocation))
-          ).multipliedBy(100);
-       */
     },
     calculatedOpeningAPR() {
-      return false;
+      this.newAllocationSizes;
+      let totalAllocatingStake = new BigNumber(0);
+      let totalRewardsPerYear = new BigNumber(0);
+
+      if(this.selectedSubgraphs.length > 0){
+        for(const i in this.selectedSubgraphs){
+          let newAllocationSize = this.newAllocationSizes[this.selectedSubgraphs[i].currentVersion.subgraphDeployment.ipfsHash];
+          if(newAllocationSize) {
+            let closingAllocation = this.selectedAllocations.find(e => {
+              return e.subgraphDeployment.ipfsHash === this.selectedSubgraphs[i].currentVersion.subgraphDeployment.ipfsHash;
+            });
+
+            newAllocationSize;
+            if (closingAllocation) {
+              totalRewardsPerYear = totalRewardsPerYear.plus(
+                  new BigNumber(this.selectedSubgraphs[i].currentSignalledTokens)
+                      .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
+                      .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
+                      .multipliedBy(newAllocationSize)
+                      .dividedBy(new BigNumber(this.selectedSubgraphs[i].currentVersion.subgraphDeployment.stakedTokens).minus(closingAllocation.allocatedTokens).plus(new BigNumber(newAllocationSize).multipliedBy("1000000000000000000")))
+              );
+            } else {
+              totalRewardsPerYear = totalRewardsPerYear.plus(
+                  new BigNumber(this.selectedSubgraphs[i].currentSignalledTokens)
+                      .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
+                      .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
+                      .multipliedBy(newAllocationSize)
+                      .dividedBy(new BigNumber(this.selectedSubgraphs[i].currentVersion.subgraphDeployment.stakedTokens).plus(new BigNumber(newAllocationSize).multipliedBy("1000000000000000000")))
+              );
+
+            }
+
+            totalAllocatingStake = totalAllocatingStake.plus(newAllocationSize);
+
+
+
+          }
+        }
+        return totalRewardsPerYear.dividedBy(totalAllocatingStake).multipliedBy(100).dp(2);
+      }
+      return 0;
     },
     buildCommands(){
       let commands = "";

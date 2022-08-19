@@ -63,7 +63,7 @@ const router = new VueRouter({
 })
 
 store.state.bigNumber = BigNumber;
-store.state.bigNumber.config({ POW_PRECISION: 100 });
+store.state.bigNumber.config({ POW_PRECISION: 1000 });
 
 if (window.ethereum) {
   store.state.web3 = new Web3(window.ethereum);
