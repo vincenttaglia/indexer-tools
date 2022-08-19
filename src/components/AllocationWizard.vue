@@ -2460,14 +2460,17 @@ export default {
     indexerCut(dailyRewards){
       return this.indexingRewardCut == 1000000 ? dailyRewards : dailyRewards.multipliedBy(this.$store.state.indexingRewardCut).dividedBy(1000000).dp(0,1);
     },
+    setRestakeRewards(setting){
+      this.restakeRewards = setting;
+    },
     getRestakeRewardsSetting(){
-      let restakingRewards = this.restakeRewards;
-      restakingRewards;
-      console.log(this.stakingContract);
-      console.log(this.stakingContract.methods);
+      let context = this;
+
       this.stakingContract.methods.rewardsDestination(this.indexer).call(function(error, value){
+
         if(value !== "0x0000000000000000000000000000000000000000")
-          restakingRewards = false;
+          context.setRestakeRewards(false);
+
       });
     },
   },
