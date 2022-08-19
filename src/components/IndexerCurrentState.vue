@@ -20,18 +20,6 @@
         :show-select="this.selectable"
         v-model="selected"
     >
-      <!--<template v-slot:top>
-        <tr>
-          <td  class="mx-4">
-            <v-text-field
-                v-model="indexer"
-                label="Indexer"
-                class="mx-6"
-                @change="updateAllocations"
-            ></v-text-field>
-          </td>
-        </tr>
-      </template>-->
       <template v-slot:item.subgraphDeployment.versions[0].subgraph.image="{ item }">
         <v-badge
             :value="item.subgraphDeployment.deniedAt"
@@ -115,7 +103,7 @@
           <td></td>
           <td></td>
           <td></td>
-          <td><strong>{{ avgAPR }}%</strong></td>
+          <td><strong>{{ numeral(avgAPR).format('0,0.00') }}%</strong></td>
           <td><strong>{{ numeral(web3.utils.fromWei(web3.utils.toBN(dailyrewards_sum))).format('0,0') }} GRT</strong></td>
           <td><strong>{{ numeral(web3.utils.fromWei(web3.utils.toBN(dailyrewards_cut_sum))).format('0,0') }} GRT</strong></td>
           <td><strong>{{ numeral(web3.utils.fromWei(web3.utils.toBN(pending_rewards_sum))).format('0,0') }} GRT</strong></td>
