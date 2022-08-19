@@ -110,6 +110,7 @@
       <template v-slot:body.append>
         <tr>
           <td style="font-size: 11px"><strong>Totals</strong></td>
+          <td v-if="selectable"></td>
           <td><strong>{{ allocations.length }} allocations</strong></td>
           <td></td>
           <td></td>
