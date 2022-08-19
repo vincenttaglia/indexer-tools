@@ -31,7 +31,7 @@
         </v-stepper-step>
       </v-stepper-header>
       <v-stepper-content step="1">
-        <IndexerCurrentState :indexer="indexer" selectable @allocations-selected="selectAllocations"/>
+        <IndexerCurrentState :indexer="indexer" selectable @allocations-selected="selectAllocations" v-on:avg-apr-set="updateAvgAPR"/>
         <div class="mt-12 mb-10 ml-5">
           <v-btn
               color="primary"
@@ -130,26 +130,39 @@
             flat
             tile
             width="100%"
-            style="background-color: #5a3c57"
-            class="text-center white--text d-flex flex-row align-content-center justify-center"
+            style=""
+            class="text-center white--text d-flex flex-row align-content-center justify-center bottom-row"
         >
-          <v-card style="background-color: #5a3c57">
+          <v-card>
             <v-card-text>
-              Closing Allocations APR:
-              <h1 class="pt-2">{{ this.calculatedClosingAPR }}%</h1>
+              Before Overall APR:
+              <h1 class="pt-2">{{ numeral(this.avgAPR).format("0,0.00") }}%</h1>
             </v-card-text>
           </v-card>
-          <v-card style="background-color: #5a3c57">
+          <v-card>
+            <v-card-text>
+              Closing Allocations APR:
+              <h1 class="pt-2">{{ numeral(this.calculatedClosingAPR).format("0,0.00") }}%</h1>
+            </v-card-text>
+          </v-card>
+          <v-card>
             <v-card-text>
                 Allocation Remaining:
                 <h1 class="pt-2">{{ numeral(web3.utils.fromWei(web3.utils.toBN(this.calculatedAvailableStake))).format('0,0') }}</h1>
             </v-card-text>
           </v-card>
 
-          <v-card style="background-color: #5a3c57">
+          <v-card>
             <v-card-text>
               Opening Allocations APR:
-              <h1 class="pt-2">{{ this.calculatedOpeningAPR }}%</h1>
+              <h1 class="pt-2">{{ numeral(this.calculatedOpeningAPR).format("0,0.00") }}%</h1>
+            </v-card-text>
+          </v-card>
+
+          <v-card>
+            <v-card-text>
+              After Overall APR:
+              <h1 class="pt-2">{{ numeral(this.calculatedOpeningAPR).format("0,0.00") }}%</h1>
             </v-card-text>
           </v-card>
 
@@ -2347,6 +2360,7 @@ export default {
         }
       ],
       restakeRewards: true,
+      avgAPR: 0,
     }
   },
   components: {
@@ -2384,6 +2398,9 @@ export default {
     },
   },
   methods: {
+    updateAvgAPR(avgAPR){
+      this.avgAPR = avgAPR;
+    },
     updateAllocations(){
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
@@ -2558,5 +2575,11 @@ export default {
   max-width: 800px;
   margin: auto;
   box-shadow: none!important;
+}
+.bottom-row{
+  background-color: #5a3c57!important;
+}
+.bottom-row div{
+  background-color: #5a3c57!important;
 }
 </style>

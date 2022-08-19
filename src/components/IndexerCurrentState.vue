@@ -961,6 +961,9 @@ export default {
   watch: {
     selected: function(value) {
       this.$emit("allocations-selected", value);
+    },
+    avgAPR: function(value){
+      this.$emit("avg-apr-set", value);
     }
   }
 }
