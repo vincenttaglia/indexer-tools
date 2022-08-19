@@ -79,12 +79,15 @@
                     <v-text-field
                         v-model="newIndexerName"
                         label="Indexer Name"
+                        hint="ENS Domains Auto-Filled"
+                        persistent-hint
                         class="mx-6"
                     ></v-text-field>
                     <v-text-field
                         v-model="newIndexerAddress"
                         label="Indexer Address"
                         class="mx-6"
+                        @change="getENS(newIndexerAddress)"
                     ></v-text-field>
                   </v-card-text>
 
@@ -192,6 +195,7 @@
 
 <script>
 import gql from "graphql-tag";
+import namehash from "@ensdomains/eth-ens-namehash";
 
 export default {
   name: 'indexer-tools',
@@ -245,6 +249,22 @@ export default {
     },
   },
   methods: {
+    async reverse(address) {
+      var lookup=address.toLowerCase().substr(2) + '.addr.reverse'
+      var ResolverContract=await this.$store.state.web3.eth.ens.resolver(lookup);
+      var nh=namehash.hash(lookup);
+      var name=await ResolverContract.methods.name(nh).call()
+      return name;
+    },
+    getENS(address){
+      console.log(address);
+      if(this.newIndexerName === ""){
+        this.reverse(address).then((name) => {
+          this.newIndexerName = name;
+        });
+      }
+
+    },
     updateAllocations(){
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
@@ -273,16 +293,28 @@ export default {
       console.log("test");
       this.dialog = false;
       console.log("test");
-      let newAccount = {
-        name: name,
-        address: indexer,
-        active: false,
-      }
+
       let lookup = this.indexerAccounts.find(e => e.address === indexer);
       if(!lookup){
-        this.indexerAccounts.push(newAccount);
-        this.updateIndexerAccount(newAccount);
-        this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+
+        let newAccount = {
+          name: name,
+          address: indexer,
+          active: false,
+        }
+        if(name === "") {
+          this.reverse(indexer).then((name) => {
+            newAccount.name = name;
+            this.indexerAccounts.push(newAccount);
+            this.updateIndexerAccount(newAccount);
+            this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+          });
+        }else{
+          this.indexerAccounts.push(newAccount);
+          this.updateIndexerAccount(newAccount);
+          this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+        }
+
       }else{
         this.updateIndexerAccount(lookup);
       }
