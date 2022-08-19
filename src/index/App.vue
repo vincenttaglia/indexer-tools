@@ -11,12 +11,26 @@
       color="#5a3c57"
       dark
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <div class="d-flex align-center ">
-        <h1>
-          Indexer Tools
+      <div class="d-flex grid-list align-center">
+        <h1 class="mx-5">
+          {{ this.$route.path === "/wizard" ? "Allocation Wizard" : "Indexer 2ools" }}
         </h1>
+        <v-btn
+            text
+            to="/"
+            class="ml-5 mr-2"
+        >
+          Indexer 2ools
+        </v-btn>
+        <v-btn
+            text
+            to="/wizard"
+            class="ml-2 mr-5"
+        >
+          Allocation Wizard
+        </v-btn>
       </div>
+
 
       <v-spacer></v-spacer>
 
@@ -34,13 +48,13 @@
         <v-card>
           <v-list dense>
             <v-subheader>
-              <h3>Accounts</h3>
+              <h3 class="pl-2">Accounts</h3>
               <v-dialog
                   v-model="editDialog"
                   width="500"
               >
                 <template v-slot:activator="{ on }">
-                  <v-icon style="padding: 0 0 5px 8px" small clickable v-on="on">mdi-pencil</v-icon>
+                  <v-icon style="margin: 0 0 5px 8px" small clickable v-on="on">mdi-pencil</v-icon>
                 </template>
 
                 <v-card>
@@ -73,7 +87,7 @@
                   width="500"
               >
                 <template v-slot:activator="{ on }">
-                  <v-icon small clickable v-on="on" style="padding-bottom: 5px">mdi-plus</v-icon>
+                  <v-icon small clickable v-on="on" style="margin-bottom: 5px">mdi-plus</v-icon>
                 </template>
 
                 <v-card>
@@ -133,31 +147,6 @@
       </v-menu>
     </v-app-bar>
 
-    <v-navigation-drawer
-        v-model="drawer"
-        absolute
-        bottom
-        temporary
-    >
-      <v-list
-          nav
-          dense
-      >
-        <v-list-item-group
-            active-class="deep-purple--text text--accent-4"
-        >
-
-
-          <v-list-item to="/">
-            Indexer Tools
-          </v-list-item>
-          <v-list-item to="/wizard">
-            Allocation Wizard
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer>
-
     <v-main>
       <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer" :key="indexer" :addIndexerAccount="addIndexerAccount" @update-loading="updateLoading"></router-view>
     </v-main>
@@ -178,7 +167,6 @@
               href="https://vincenttaglia.eth.link/"
               target="_blank"
               text
-              class="hidden-sm-and-down"
           >
             <span class="mr-2">Made with ♥ by vincenttaglia.eth</span>
           </v-btn>
