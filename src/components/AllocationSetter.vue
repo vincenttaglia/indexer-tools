@@ -159,11 +159,12 @@ export default {
           closingAllocationSize = thisAllocation.allocatedTokens;
         }
         let futureStakedTokens = BigNumber(this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.stakedTokens).minus(closingAllocationSize);
+        let newSize = this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] : 0;
+        let dailyrewards = this.dailyrewards(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), futureStakedTokens.toString(), newSize.toString());
 
-        let dailyrewards = this.dailyrewards(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), futureStakedTokens.toString(), this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash].toString() : "0");
         let setting = {
-          size: this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] || 0,
-          newapr: this.newapr(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), futureStakedTokens.toString(), this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash] ? this.newAllocationSizes[this.subgraphsToAllocate[i].currentVersion.subgraphDeployment.ipfsHash].toString() : "0"),
+          size: newSize,
+          newapr: this.newapr(this.subgraphsToAllocate[i].currentSignalledTokens.toString(), futureStakedTokens.toString(), newSize.toString()),
           dailyrewards: dailyrewards,
           dailyrewards_cut: this.indexerCut(dailyrewards),
         };
@@ -181,24 +182,27 @@ export default {
       let BigNumber = this.$store.state.bigNumber;
 
       // signalledTokens / totalTokensSignalled * issuancePerYear / (stakedTokens + new_allocation)
-      return new BigNumber(currentSignalledTokens)
+      let apr = new BigNumber(currentSignalledTokens)
           .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
           .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
           .dividedBy(
               new BigNumber(stakedTokens).plus(this.$store.state.web3.utils.toWei(new_allocation))
           ).multipliedBy(100);
+      return apr.isNaN() ? new BigNumber(0) : apr;
     },
     dailyrewards: function(currentSignalledTokens, stakedTokens, new_allocation){
       let BigNumber = this.$store.state.bigNumber;
 
       // currentSignalledTokens / totalTokensSignalled * issuancePerBlock * blocks per day * (new_allocation / (stakedTokens + new_allocation))
-      return new BigNumber(currentSignalledTokens)
+      let dr = new BigNumber(currentSignalledTokens)
           .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
           .multipliedBy(this.$store.state.graphNetwork.issuancePerBlock)
           .multipliedBy(6450)
           .multipliedBy(
               new BigNumber(this.$store.state.web3.utils.toWei(new_allocation)).dividedBy(new BigNumber(stakedTokens).plus(this.$store.state.web3.utils.toWei(new_allocation)))
           ).dp(0);
+
+      return dr.isNaN() ? new BigNumber(0) : dr;
     },
     updateEstApr: function(){
       this.$cookies.set("new_allocation", this.new_allocation);
