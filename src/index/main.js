@@ -74,6 +74,14 @@ if (window.ethereum) {
     store.state.web3 = new Web3("https://mainnet.infura.io/v3/659344f230804542a4e653f875172105");
     console.log("Using backup RPC");
   }
+  window.ethereum.on('networkChanged', function(networkId){
+    console.log('networkChanged',networkId);
+    if(networkId === "1"){
+      store.state.web3 = new Web3(window.ethereum);
+    }else{
+      store.state.web3 = new Web3("https://mainnet.infura.io/v3/659344f230804542a4e653f875172105");
+    }
+  });
 } else { // Non-dapp browsers...
   store.state.web3 = new Web3("https://mainnet.infura.io/v3/659344f230804542a4e653f875172105");
   console.log('No window.ethereum detected. Using backup RPC.');
