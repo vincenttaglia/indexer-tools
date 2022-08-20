@@ -15,7 +15,7 @@ export default {
   },
   created(){
     console.log(this.urlIndexer);
-    this.addIndexerAccount(this.urlIndexer, "New Account");
+    this.addIndexerAccount(this.urlIndexer, "");
     this.$router.push('/');
   },
 }

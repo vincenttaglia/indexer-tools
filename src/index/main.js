@@ -64,21 +64,42 @@ const router = new VueRouter({
 
 store.state.bigNumber = BigNumber;
 store.state.bigNumber.config({ POW_PRECISION: 1000 });
+console.log(window.ethereum);
+console.log(window.ethereum.networkVersion);
+console.log(window.ethereum.networkName);
 
 if (window.ethereum) {
-  store.state.web3 = new Web3(window.ethereum);
+  if(window.ethereum.networkVersion === "1"){
+    store.state.web3 = new Web3(window.ethereum);
+    console.log("Using provided RPC");
+  }else{
+    store.state.web3 = new Web3("https://mainnet.infura.io/v3/659344f230804542a4e653f875172105");
+    console.log("Using backup RPC");
+  }
+  /*window.ethereum
+      .request({ method: 'eth_chainId' })
+      .then((chainId) => {
+        console.log(`hexadecimal string: ${chainId}`);
+        console.log(`decimal number: ${parseInt(chainId, 16)}`);
+        if(chainId === "0x1"){
+          store.state.web3 = new Web3(window.ethereum);
+        }else{
+          store.state.web3 = new Web3("https://mainnet.infura.io/v3/659344f230804542a4e653f875172105");
+        }
+      })
+      .catch((error) => {
+        console.error(`Error fetching chainId: ${error.code}: ${error.message}`);
+        store.state.web3 = new Web3("https://mainnet.infura.io/v3/659344f230804542a4e653f875172105");
+      });
   /*try {
     // Request account access if needed
     window.ethereum.enable();
   } catch (error) {
     // User denied account access...
   }*/
-} else if (window.web3) { // Legacy dapp browsers...
-  window.web3 = new Web3(window.web3.currentProvider);
-  store.state.web3 = window.web3;
 } else { // Non-dapp browsers...
   store.state.web3 = new Web3("https://mainnet.infura.io/v3/659344f230804542a4e653f875172105");
-  console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+  console.log('No window.ethereum detected. Using backup RPC.');
 }
 Vue.use(Vuex)
 Vue.use(VueApollo)

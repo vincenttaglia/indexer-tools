@@ -287,9 +287,7 @@ export default {
       this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
     },
     addIndexerAccount(indexer, name){
-      console.log("test");
       this.dialog = false;
-      console.log("test");
 
       let lookup = this.indexerAccounts.find(e => e.address === indexer);
       if(!lookup){
@@ -305,6 +303,8 @@ export default {
             this.indexerAccounts.push(newAccount);
             this.updateIndexerAccount(newAccount);
             this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
+          }).catch(()=>{
+            newAccount.name = "New Account";
           });
         }else{
           this.indexerAccounts.push(newAccount);
