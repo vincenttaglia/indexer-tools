@@ -2585,7 +2585,8 @@ export default {
         commands += `graph indexer rules delete ${this.selectedAllocations[i].subgraphDeployment.ipfsHash}\n`
       }
       for(const i in this.newAllocationSizes){
-        commands += `graph indexer rules set ${i} allocationAmount ${this.newAllocationSizes[i]} decisionBasis always\n`
+        if(this.newAllocationSizes[i] > 0)
+          commands += `graph indexer rules set ${i} allocationAmount ${this.newAllocationSizes[i]} decisionBasis always\n`
       }
       return commands;
     },
