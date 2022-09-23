@@ -87,6 +87,20 @@
             icon="mdi-currency-usd-off"
             overlap
             avatar
+            v-if="(item.currentVersion.subgraphDeployment.deniedAt && item.currentlyAllocated) || (!item.currentVersion.subgraphDeployment.deniedAt && !item.currentlyAllocated) || (item.currentVersion.subgraphDeployment.deniedAt && !item.currentlyAllocated)"
+        >
+          <v-avatar size="30">
+            <v-img :src="item.image" />
+          </v-avatar>
+        </v-badge>
+        <v-badge
+            :value="item.currentlyAllocated"
+            bordered
+            color="warning"
+            icon="mdi-exclamation-thick"
+            overlap
+            avatar
+            v-if="!item.currentVersion.subgraphDeployment.deniedAt && item.currentlyAllocated"
         >
           <v-avatar size="30">
             <v-img :src="item.image" />
@@ -190,8 +204,13 @@ export default {
 
             if(allo){
               stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens - allo.allocatedTokens;
+              data.subgraphs[i].currentlyAllocated = false;
             } else{
               stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens;
+              let isAlloed = this.$store.state.allocations.find(e => {
+                return e.subgraphDeployment.ipfsHash === subgraph.currentVersion.subgraphDeployment.ipfsHash;
+              })
+              data.subgraphs[i].currentlyAllocated = isAlloed;
             }
             data.subgraphs[i].apr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, "0");
             data.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, stakedTokens, this.new_allocation);
@@ -352,8 +371,13 @@ export default {
 
           if(allo){
             stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens - allo.allocatedTokens;
+            this.$store.state.subgraphs[i].currentlyAllocated = false;
           } else{
             stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens;
+            let isAlloed = this.$store.state.allocations.find(e => {
+              return e.subgraphDeployment.ipfsHash === subgraph.currentVersion.subgraphDeployment.ipfsHash;
+            })
+            this.$store.state.subgraphs[i].currentlyAllocated = isAlloed;
           }
 
           this.$store.state.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, stakedTokens, this.new_allocation);
