@@ -31,7 +31,7 @@
         </v-stepper-step>
       </v-stepper-header>
       <v-stepper-content step="1">
-        <IndexerCurrentState :indexer="indexer" selectable @allocations-selected="selectAllocations" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
+        <IndexerCurrentState :indexer="indexer" :subgraph_loading="loading" selectable @allocations-selected="selectAllocations" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
         <div class="mt-12 mb-10 ml-5">
           <v-btn
               color="primary"

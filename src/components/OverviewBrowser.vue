@@ -1,6 +1,6 @@
 <template>
   <v-main>
-    <IndexerCurrentState :indexer="indexer"/>
+    <IndexerCurrentState :indexer="indexer" :subgraph_loading="loading"/>
     <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" @update-loading="updateLoading" :simulateClosingAllocations="[]"/>
   </v-main>
 </template>
@@ -21,6 +21,7 @@ export default {
   props: {
     indexer: String,
     indexingRewardCut: Number,
+    loading: Boolean,
   },
   methods: {
     updateAllocations(){

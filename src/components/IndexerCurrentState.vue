@@ -222,7 +222,8 @@ export default {
         }*/
         console.log(networkStatus);
         this.loading = false;
-        this.getPendingAllocationRewards();
+        if(!this.subgraph_loading)
+          this.getPendingAllocationRewards();
       },
     },
   },
@@ -787,6 +788,7 @@ export default {
   props: {
     indexer: String,
     selectable: Boolean,
+    subgraph_loading: Boolean,
   },
   computed: {
     pending_rewards_cut_sum(){
@@ -973,6 +975,11 @@ export default {
     totalRewardsPerYear: function(value){
       this.$emit("yearly-rewards-set", value);
     },
+    subgraph_loading: function(value){
+      if(!value){
+        this.getPendingAllocationRewards();
+      }
+    }
   }
 }
 </script>
