@@ -62,6 +62,18 @@
                 item-value="action"
                 label="Subgraphs w/ Denied Rewards"
                 style="width: 200px;"
+                class="mx-4"
+            ></v-select>
+          </td>
+          <td>
+            <v-select
+                v-model="networkFilter"
+                :items="networks"
+                label="Subgraph Networks"
+                multiple
+                chips
+                class="mx-4"
+                style="top: -5px"
             ></v-select>
           </td>
           <td colspan="4"></td>
@@ -142,6 +154,9 @@ export default {
               stakedTokens
               createdAt
               deniedAt
+              network{
+                id
+              }
             }
           }
         }
@@ -154,6 +169,10 @@ export default {
       update (data) {
         for(let i = 0; i < data.subgraphs.length; i++){
           let subgraph = data.subgraphs[i];
+
+          // networks
+          if(subgraph.currentVersion.subgraphDeployment.network != null && !this.networks.includes(subgraph.currentVersion.subgraphDeployment.network.id))
+            this.networks.push(subgraph.currentVersion.subgraphDeployment.network.id);
 
           // proportion
           if(subgraph.currentVersion.subgraphDeployment.stakedTokens > 0)
@@ -229,6 +248,8 @@ export default {
       selected: [],
       noRewardsFilter: 0,
       loading: true,
+      networks: [],
+      networkFilter: [],
     }
   },
   computed: {
@@ -266,17 +287,25 @@ export default {
       ]
     },
     filteredSubgraphs(){
+      let subgraphs = this.subgraphs;
+      let networkFilter = this.networkFilter;
       if(this.noRewardsFilter === 0){
-        return this.subgraphs.filter((i) => {
+        subgraphs = subgraphs.filter((i) => {
           return !i.currentVersion.subgraphDeployment.deniedAt;
         });
       } else if(this.noRewardsFilter === 2){
-        return this.subgraphs.filter((i) => {
+        subgraphs = subgraphs.filter((i) => {
           return i.currentVersion.subgraphDeployment.deniedAt;
         });
-      } else{
-        return this.subgraphs;
       }
+
+      if(networkFilter.length) {
+        subgraphs = subgraphs.filter((i) => {
+          return i.currentVersion.subgraphDeployment.network && networkFilter.includes(i.currentVersion.subgraphDeployment.network.id);
+        });
+      }
+
+      return subgraphs
     },
   },
   props: {
