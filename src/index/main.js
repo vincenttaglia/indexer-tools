@@ -64,7 +64,6 @@ const router = new VueRouter({
 
 store.state.bigNumber = BigNumber;
 store.state.bigNumber.config({ POW_PRECISION: 1000 });
-console.log(window.ethereum.networkVersion);
 
 if (window.ethereum) {
   if(window.ethereum.networkVersion === "1"){
