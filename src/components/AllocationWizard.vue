@@ -80,6 +80,7 @@
       <v-stepper-content step="4">
         <div class="mt-12 mb-10 ml-5">
           <v-textarea readonly :value="buildCommands"></v-textarea>
+          <v-textarea readonly :value="actionsQueueBuildCommands"></v-textarea>
           <v-btn
               text
               @click="currentStep--"
@@ -2589,6 +2590,25 @@ export default {
           commands += `graph indexer rules set ${i} allocationAmount ${this.newAllocationSizes[i]} decisionBasis always\n`
       }
       return commands;
+    },
+    actionsQueueBuildCommands(){
+      let unallocate = "";
+      let reallocate = "";
+      let allocate = "";
+      let skip = [];
+      for(const i in this.selectedAllocations){
+        if(Object.keys(this.newAllocationSizes).includes(this.selectedAllocations[i].subgraphDeployment.ipfsHash)){
+          reallocate += `graph indexer actions queue reallocate ${this.selectedAllocations[i].subgraphDeployment.ipfsHash} ${this.selectedAllocations[i].id} ${this.newAllocationSizes[this.selectedAllocations[i].subgraphDeployment.ipfsHash]}\n`
+          skip.push(this.selectedAllocations[i].subgraphDeployment.ipfsHash);
+        }else{
+          unallocate += `graph indexer actions queue unallocate ${this.selectedAllocations[i].subgraphDeployment.ipfsHash} ${this.selectedAllocations[i].id}\n`
+        }
+      }
+      for(const i in this.newAllocationSizes){
+        if(this.newAllocationSizes[i] > 0 && !skip.includes(i))
+          allocate += `graph indexer actions queue allocate ${i} ${this.newAllocationSizes[i]}\n`
+      }
+      return `${unallocate}${reallocate}${allocate}`;
     },
     stakingContract() {
       return new this.$store.state.web3.eth.Contract(this.stakingContractABI, "0xF55041E37E12cD407ad00CE2910B8269B01263b9");
