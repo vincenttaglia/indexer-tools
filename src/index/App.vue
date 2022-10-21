@@ -101,7 +101,7 @@
                     <v-text-field
                         v-model="newIndexerName"
                         label="Indexer Name"
-                        hint="ENS Domains Auto-Filled"
+                        hint="ENS Domains Auto-Filled (broken)"
                         persistent-hint
                         class="mx-6"
                     ></v-text-field>
