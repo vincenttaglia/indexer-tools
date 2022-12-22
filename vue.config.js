@@ -18,12 +18,12 @@ module.exports = {
     // template is inferred to be `public/subpage.html`
     // and falls back to `public/index.html` if not found.
     // Output filename is inferred to be `subpage.html`.
-    wizard: {
+    /*wizard: {
       entry: 'src/allocation-wizard/allocation-wizard.js',
       template: 'public/index.html',
       filename: 'allocation-wizard.html',
       title: 'Allocation Wizard',
-    }
+    }*/
   },
   transpileDependencies: [
     'vuetify'
