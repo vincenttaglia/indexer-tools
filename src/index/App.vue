@@ -31,6 +31,14 @@
         >
           Allocation Wizard
         </v-btn>
+        <v-btn
+            text
+            to="/settings"
+            class="ml-2 mr-5"
+            :disabled="loading"
+        >
+          Settings
+        </v-btn>
       </div>
 
 
@@ -65,20 +73,7 @@
                   </v-card-title>
 
                   <v-card-text>
-                    <div v-for="indexerAccount in indexerAccounts" :key="indexerAccount.address" class="indexer-edit">
-                      <v-text-field
-                        v-model="indexerAccount.name"
-                        label="Indexer Name"
-                        @change="editIndexerAccounts"
-                      ></v-text-field>
-                      <v-text-field
-                          v-model="indexerAccount.address"
-                          label="Indexer Address"
-                          @change="editIndexerAccounts"
-                      ></v-text-field>
-                      <v-icon @click="deleteIndexerAccount(indexerAccount)" v-if="!indexerAccount.active">mdi-delete</v-icon>
-                      <span v-if="indexerAccount.active">(Active)</span>
-                    </div>
+                    <IndexerAccounts ref="accounts"></IndexerAccounts>
                   </v-card-text>
 
                 </v-card>
@@ -120,7 +115,7 @@
                     <v-btn
                         color="primary"
                         text
-                        @click="addIndexerAccount(newIndexerAddress, newIndexerName)"
+                        @click="addIndexerAccount(newIndexerAddress, newIndexerName);"
 
                     >
                       Add
@@ -136,7 +131,7 @@
               <v-list-item
                   v-for="(indexerAccount) in indexerAccounts"
                   :key="indexerAccount.address"
-                  @click="updateIndexerAccount(indexerAccount)"
+                  @click="activateIndexerAccount(indexerAccount.address);"
               >
                 <v-list-item-content>
                   <v-list-item-title v-text="indexerAccount.name"></v-list-item-title>
@@ -191,7 +186,7 @@
 
 <script>
 import gql from "graphql-tag";
-import namehash from "@ensdomains/eth-ens-namehash";
+import IndexerAccounts from "../components/IndexerAccounts.vue";
 
 export default {
   name: 'indexer-tools',
@@ -237,95 +232,27 @@ export default {
     },
   },
   components: {
-
+    IndexerAccounts
   },
   computed: {
     indexerName() {
       return this.indexerAccounts.find(e => e.active).name;
     },
+    indexer(){
+      return this.indexerAccounts.find(e => e.active).address;
+    }
   },
   methods: {
     updateLoading(){
       this.loading = false;
     },
-    async reverse(address) {
-      var lookup=address.toLowerCase().substr(2) + '.addr.reverse'
-      var ResolverContract=await this.$store.state.web3.eth.ens.resolver(lookup);
-      var nh=namehash.hash(lookup);
-      var name=await ResolverContract.methods.name(nh).call()
-      return name;
-    },
-    getENS(address){
-      console.log(address);
-      if(this.newIndexerName === ""){
-        this.reverse(address).then((name) => {
-          this.newIndexerName = name;
-        });
-      }
-
-    },
     updateAllocations(){
       this.$store.state.indexer = this.indexer;
       this.$cookies.set("indexer",this.indexer);
     },
-    editIndexerAccounts(){
-      this.$store.state.indexerAccounts = this.indexerAccounts;
-      this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
-    },
-    deleteIndexerAccount(indexerAccount){
-      let account = this.indexerAccounts.find(e => e.address === indexerAccount.address);
-      if(!account.active){
-        this.indexerAccounts = this.indexerAccounts.filter(function(e) { return e.address !== indexerAccount.address; });
-        this.editIndexerAccounts();
-      }
-    },
-    updateIndexerAccount(indexerAccount){
-      let activeAccount = this.indexerAccounts.find(e => e.active);
-      activeAccount.active = false;
-      indexerAccount.active = true;
-      this.indexer = indexerAccount.address;
-      this.$store.state.indexer = this.indexer;
-      this.$cookies.set("indexer", this.indexer);
-      this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
-    },
-    addIndexerAccount(indexer, name){
-      this.dialog = false;
-
-      let lookup = this.indexerAccounts.find(e => e.address === indexer);
-      if(!lookup){
-
-        let newAccount = {
-          name: name,
-          address: indexer,
-          active: false,
-        }
-        if(name === "") {
-          this.reverse(indexer).then((name) => {
-            newAccount.name = name;
-            this.indexerAccounts.push(newAccount);
-            this.updateIndexerAccount(newAccount);
-            this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
-          }).catch(()=>{
-            newAccount.name = "New Account";
-          });
-        }else{
-          this.indexerAccounts.push(newAccount);
-          this.updateIndexerAccount(newAccount);
-          this.$cookies.set("indexerAccounts", JSON.stringify(this.indexerAccounts));
-        }
-
-      }else{
-        this.updateIndexerAccount(lookup);
-      }
-
-      this.newIndexerName = "";
-      this.newIndexerAddress = "";
-
-    },
   },
   data () {
     return {
-      indexer: this.$store.state.indexer,
       indexingRewardCut: 0,
       drawer: false,
       indexerAccounts: this.$store.state.indexerAccounts,
@@ -354,5 +281,8 @@ export default {
 }
 .v-badge__badge .v-icon{
   font-size: 14px!important;
+}
+.v-data-table { 
+  overflow-x: auto;
 }
 </style>

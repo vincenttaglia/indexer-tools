@@ -16,6 +16,8 @@ import OverviewBrowser from "../components/OverviewBrowser";
 import AllocationWizard from "../components/AllocationWizard";
 import VueRouter from "vue-router";
 import BookmarkSupport from "../components/BookmarkSupport";
+import Settings from "../components/Settings";
+import namehash from "@ensdomains/eth-ens-namehash";
 
 
 Vue.use(Vuex)
@@ -50,6 +52,7 @@ const routes = [
   { path: '/', component: OverviewBrowser }, //, props: { indexer: store.state.indexer, indexingRewardCut: store.state.indexingRewardCut }
   { path: '/wizard', component: AllocationWizard },
   { path: '/indexer/:urlIndexer', component: BookmarkSupport, props: true },
+  { path: '/settings', component: Settings },
 ]
 
 const router = new VueRouter({
@@ -109,6 +112,69 @@ const apolloProvider = new VueApollo({
   defaultClient: apolloClient,
 })
 
+Vue.mixin({
+  methods: {
+  async getENS(address) {
+      var lookup=address.toLowerCase().substr(2) + '.addr.reverse'
+      var ResolverContract=await store.state.web3.eth.ens.resolver(lookup);
+      var nh=namehash.hash(lookup);
+      var name=await ResolverContract.methods.name(nh).call()
+      return name;
+  },
+  updateIndexerAccounts(indexerAccounts){
+      store.state.indexerAccounts = indexerAccounts;
+      Vue.$cookies.set("indexerAccounts", JSON.stringify(store.state.indexerAccounts));
+  },
+  deleteIndexerAccount(indexerAccount){
+      let account = store.state.indexerAccounts.find(e => e.address === indexerAccount.address);
+      if(!account.active)
+        this.updateIndexerAccounts(store.state.indexerAccounts.filter(function(e) { return e.address !== indexerAccount.address; }));
+  },
+  updateIndexerName(indexer, name){
+    let indexerAccount = store.state.indexerAccounts.find(e => e.address == indexer);
+    indexerAccount.name = name;
+  },
+  activateIndexerAccount(indexer){
+    let activeAccount = store.state.indexerAccounts.find(e => e.active);
+    let indexerAccount = store.state.indexerAccounts.find(e => e.address === indexer);
+    activeAccount.active = false;
+    indexerAccount.active = true;
+    store.state.indexer = indexerAccount.address;
+    Vue.$cookies.set("indexer", indexerAccount.address);
+    Vue.$cookies.set("indexerAccounts", JSON.stringify(store.state.indexerAccounts));
+  },
+  addIndexerAccount(indexer, name){
+      let lookup = store.state.indexerAccounts.find(e => e.address === indexer);
+      if(!lookup){
+
+          let newAccount = {
+          name: name,
+          address: indexer,
+          active: false,
+          }
+          if(name === "") {
+          this.getENS(indexer).then((name) => {
+              newAccount.name = name;
+              store.state.indexerAccounts.push(newAccount);
+              this.activateIndexerAccount(indexer);
+              Vue.$cookies.set("indexerAccounts", JSON.stringify(store.state.indexerAccounts));
+          }).catch(()=>{
+              newAccount.name = "New Account";
+          });
+          }else{
+          store.state.indexerAccounts.push(newAccount);
+          this.activateIndexerAccount(indexer);
+          Vue.$cookies.set("indexerAccounts", JSON.stringify(store.state.indexerAccounts));
+          }
+
+      }else{
+          this.activateIndexerAccount(lookup);
+      }
+
+  },
+  }
+})
+
 
 new Vue({
   vuetify,
@@ -120,3 +186,5 @@ new Vue({
   router,
   render: h => h(App)
 }).$mount('#app')
+
+
