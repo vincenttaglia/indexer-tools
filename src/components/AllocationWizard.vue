@@ -79,8 +79,11 @@
       </v-stepper-content>
       <v-stepper-content step="4">
         <div class="mt-12 mb-10 ml-5">
-          <v-textarea readonly :value="buildCommands"></v-textarea>
+          <h3>Action Queue Commands <small>(>=v0.20.0)</small></h3>
           <v-textarea readonly :value="actionsQueueBuildCommands"></v-textarea>
+          <h3>Indexing Rule Commands <small>(&lt;=v0.19.3)</small></h3>
+          <v-textarea readonly :value="buildCommands"></v-textarea>
+          
           <v-btn
               text
               @click="currentStep--"
