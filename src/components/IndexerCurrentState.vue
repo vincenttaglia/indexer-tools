@@ -71,26 +71,36 @@
         {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards_cut))).format('0,0') }} GRT
       </template>
       <template v-slot:item.pending_rewards="{ item }">
+        <span
+          v-if="item.pending_rewards === null"
+          >
+          -
+        </span>
         <v-progress-circular
             indeterminate
             color="purple"
             v-if="item.pending_rewards === -1"
         ></v-progress-circular>
         <span
-          v-if="item.pending_rewards >= 0"
+          v-if="item.pending_rewards !== null && item.pending_rewards >= 0"
           >
           {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards))).format('0,0') }} GRT
         </span>
 
       </template>
       <template v-slot:item.pending_rewards_cut="{ item }">
+        <span
+          v-if="item.pending_rewards === null"
+          >
+          -
+        </span>
         <v-progress-circular
             indeterminate
             color="purple"
             v-if="item.pending_rewards_cut === -1"
         ></v-progress-circular>
         <span
-            v-if="item.pending_rewards >= 0"
+            v-if="item.pending_rewards_cut !== null && item.pending_rewards_cut >= 0"
         >
           {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards_cut))).format('0,0') }} GRT
         </span>
@@ -199,8 +209,8 @@ export default {
               allocation.dailyrewards_cut = 0;
             }
 
-            allocation.pending_rewards = -1;
-            allocation.pending_rewards_cut = -1;
+            allocation.pending_rewards = null;
+            allocation.pending_rewards_cut = null;
 
             this.$store.state.allocations.push(allocation);
           }
@@ -222,8 +232,8 @@ export default {
         }*/
         console.log(networkStatus);
         this.loading = false;
-        if(!this.subgraph_loading)
-          this.getPendingAllocationRewards();
+        /*if(!this.subgraph_loading)
+          this.getPendingAllocationRewards();*/
       },
     },
   },
@@ -792,10 +802,10 @@ export default {
   },
   computed: {
     pending_rewards_cut_sum(){
-      return this.allocations.reduce((sum, cur) => sum.plus(cur.pending_rewards_cut), new BigNumber(0));
+      return this.allocations.reduce((sum, cur) => cur.pending_rewards_cut ? sum.plus(cur.pending_rewards_cut): sum, new BigNumber(0));
     },
     pending_rewards_sum(){
-      return this.allocations.reduce((sum, cur) => sum.plus(cur.pending_rewards), new BigNumber(0));
+      return this.allocations.reduce((sum, cur) => cur.pending_rewards ? sum.plus(cur.pending_rewards) : sum, new BigNumber(0));
     },
     dailyrewards_cut_sum(){
       return this.allocations.reduce((sum, cur) => sum.plus(cur.dailyrewards_cut), new BigNumber(0));
@@ -977,7 +987,7 @@ export default {
     },
     subgraph_loading: function(value){
       if(!value){
-        this.getPendingAllocationRewards();
+        //this.getPendingAllocationRewards();
       }
     }
   }
