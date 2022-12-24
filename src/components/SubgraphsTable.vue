@@ -92,7 +92,10 @@
             <v-checkbox
               v-model="activateBlacklist"
               label="Blacklist"
+              class="mr-3"
             ></v-checkbox>
+          </td>
+          <td>
             <v-checkbox
               v-model="activateSynclist"
               label="Synclist"
