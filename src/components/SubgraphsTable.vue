@@ -494,7 +494,7 @@ export default {
     },
     sortBy: function(value){
       this.$store.state.subgraphSortBy = value;
-      this.$cookies.set("subgraph_sort_By",value);
+      this.$cookies.set("subgraph_sort_by",value);
     },
     sortDesc: function(value){
       this.$store.state.subgraphSortDesc = value;
