@@ -23,6 +23,7 @@
     >
       <template v-slot:header="{ props: { headers } }">
         <tr v-sortable="{onEnd:updateHeaderOrder}">
+          <th  v-if="selectable"></th>
           <template v-for="header in headers"  >
             <th :key="header.text"> 
               <v-icon left>
@@ -291,20 +292,21 @@ export default {
       networks: [],
       networkFilter: [],
       id_key: 1,
-      headers: [
-        {
+      header_order: this.$store.state.subgraphHeaderOrder,
+      header_objects: {
+        0: {
           text: 'Img',
           align: 'start',
           sortable: false,
           value: 'image',
         },
-        { text: 'Name', value: 'displayName' },
-        { text: 'Created', value: 'currentVersion.subgraphDeployment.createdAt' },
-        { text: 'Current APR', value: 'apr'},
-        { text: 'New APR', value: 'newapr'},
-        { text: 'Est Daily Rewards (Before Cut)', value: 'dailyrewards'},
-        { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
-        {
+        1: { text: 'Name', value: 'displayName' },
+        2: { text: 'Created', value: 'currentVersion.subgraphDeployment.createdAt' },
+        3: { text: 'Current APR', value: 'apr'},
+        4: { text: 'New APR', value: 'newapr'},
+        5: { text: 'Est Daily Rewards (Before Cut)', value: 'dailyrewards'},
+        6: { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
+        7: {
           text: 'Current Signal',
           value: 'currentSignalledTokens',
           filter: value => {
@@ -316,15 +318,22 @@ export default {
             return true;
           },
         },
-        { text: 'Current Proportion', value: 'proportion'},
-        { text: 'Current Allocations', value: 'currentVersion.subgraphDeployment.stakedTokens'},
-        { text: 'Total Query Fees', value: 'currentVersion.subgraphDeployment.queryFeesAmount'},
-        { text: 'Total Indexing Rewards', value: 'currentVersion.subgraphDeployment.indexingRewardAmount'},
-        { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
-      ],
+        8: { text: 'Current Proportion', value: 'proportion'},
+        9: { text: 'Current Allocations', value: 'currentVersion.subgraphDeployment.stakedTokens'},
+        10: { text: 'Total Query Fees', value: 'currentVersion.subgraphDeployment.queryFeesAmount'},
+        11: { text: 'Total Indexing Rewards', value: 'currentVersion.subgraphDeployment.indexingRewardAmount'},
+        12: { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
+      },
     }
   },
   computed: {
+    headers(){
+      let headers = [];
+      for(let header_index in this.header_order){
+        headers.push(this.header_objects[this.header_order[header_index]])
+      }
+      return headers;
+    },
     filteredSubgraphs(){
       let subgraphs = this.subgraphs;
       let networkFilter = this.networkFilter;
@@ -354,7 +363,7 @@ export default {
   },
   methods: {
     updateHeaderOrder ( evt ) {
-          let headers = this.headers;
+          let headers = this.header_order;
           let old_index = evt.oldIndex;
           let new_index = evt.newIndex;
           if ( new_index >= headers.length) {
@@ -364,10 +373,12 @@ export default {
               }
           }
           headers.splice(new_index, 0, headers.splice(old_index, 1)[0]);
-          this.headers = headers;
-          //- by setting an id as a :key on the table 
-          //- we force it to redraw when headers are moved
-          this.id ++;
+          this.header_order = headers;
+          this.$store.state.indexerHeaderOrder = headers;
+          this.id_key++;
+
+          this.$cookies.set("subgraph_header_order", JSON.stringify(headers));
+          
     },
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
       let BigNumber = this.$store.state.bigNumber;

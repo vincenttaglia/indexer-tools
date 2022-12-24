@@ -23,6 +23,7 @@
     >
       <template v-slot:header="{ props: { headers } }">
         <tr v-sortable="{onEnd:updateHeaderOrder}">
+          <th  v-if="selectable"></th>
           <template v-for="header in headers"  >
             <th :key="header.text"> 
               <v-icon left>
@@ -924,6 +925,9 @@ export default {
           this.header_order = headers;
           this.$store.state.indexerHeaderOrder = headers;
           this.id_key++;
+
+          this.$cookies.set("indexer_header_order", JSON.stringify(headers));
+          
     },
     apr: function(signalledTokens, stakedTokens){
       let BigNumber = this.$store.state.bigNumber;
