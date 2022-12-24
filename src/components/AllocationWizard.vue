@@ -2492,7 +2492,7 @@ export default {
 
       let totalOpening = 0;
       for(const i in this.newAllocationSizes){
-        totalOpening += this.newAllocationSizes[i];
+        totalOpening += parseInt(this.newAllocationSizes[i]);
       }
       console.log(totalOpening);
       
