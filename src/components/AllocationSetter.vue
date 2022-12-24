@@ -73,7 +73,6 @@
               :key="refreshSlider"
               @change="updateAllocations"
               class="mt-4"
-              step="10"
           >
             <template v-slot:prepend>
               <v-text-field
@@ -81,7 +80,7 @@
                   type="number"
                   style="width: 100px"
                   v-model="newAllocationSizes[item.currentVersion.subgraphDeployment.ipfsHash]"
-                  readonly
+                  @change="updateAllocations"
               ></v-text-field>
             </template>
           </v-slider>
