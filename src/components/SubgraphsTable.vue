@@ -135,6 +135,9 @@
       <template v-slot:item.currentVersion.subgraphDeployment.stakedTokens="{ item }">
         {{ numeral(web3.utils.fromWei(item.currentVersion.subgraphDeployment.stakedTokens.toString())).format('0,0') }} GRT
       </template>
+      <template v-slot:item.currentVersion.subgraphDeployment.network.id="{ item }">
+        {{ item.currentVersion.subgraphDeployment.network.id }}
+      </template>
       <template v-slot:item.proportion="{ item }">
         {{ numeral(item.proportion*100).format('0,0.000') }}%
       </template>
@@ -199,8 +202,8 @@ export default {
           let subgraph = data.subgraphs[i];
 
           // networks
-          if(subgraph.currentVersion.subgraphDeployment.network != null && !this.networks.includes(subgraph.currentVersion.subgraphDeployment.network.id))
-            this.networks.push(subgraph.currentVersion.subgraphDeployment.network.id);
+          //if(subgraph.currentVersion.subgraphDeployment.network != null && !this.networks.includes(subgraph.currentVersion.subgraphDeployment.network.id))
+          //  this.networks.push(subgraph.currentVersion.subgraphDeployment.network.id);
 
           // proportion
           if(subgraph.currentVersion.subgraphDeployment.stakedTokens > 0)
@@ -289,7 +292,7 @@ export default {
       selected: [],
       noRewardsFilter: 0,
       loading: true,
-      networks: [],
+      networks: ["mainnet", "gnosis", "matic", "bsc", "goerli", "rinkeby"],
       networkFilter: [],
       id_key: 1,
       header_order: this.$store.state.subgraphHeaderOrder,
@@ -323,6 +326,7 @@ export default {
         10: { text: 'Total Query Fees', value: 'currentVersion.subgraphDeployment.queryFeesAmount'},
         11: { text: 'Total Indexing Rewards', value: 'currentVersion.subgraphDeployment.indexingRewardAmount'},
         12: { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
+        13: { text: 'Network', value: 'currentVersion.subgraphDeployment.network.id'},
       },
     }
   },
