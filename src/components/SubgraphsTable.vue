@@ -88,6 +88,16 @@
                 style="top: -5px"
             ></v-select>
           </td>
+          <td>
+            <v-checkbox
+              v-model="activateBlacklist"
+              label="Blacklist"
+            ></v-checkbox>
+            <v-checkbox
+              v-model="activateSynclist"
+              label="Synclist"
+            ></v-checkbox>
+          </td>
           <td colspan="4"></td>
         </tr>
       </template>
@@ -295,6 +305,8 @@ export default {
       networkFilter: [],
       id_key: 1,
       header_order: this.$store.state.subgraphHeaderOrder,
+      activateSynclist: false,
+      activateBlacklist: true,
       header_objects: {
         0: {
           text: 'Img',
@@ -340,6 +352,7 @@ export default {
     filteredSubgraphs(){
       let subgraphs = this.subgraphs;
       let networkFilter = this.networkFilter;
+
       if(this.noRewardsFilter === 0){
         subgraphs = subgraphs.filter((i) => {
           return !i.currentVersion.subgraphDeployment.deniedAt;
@@ -356,6 +369,17 @@ export default {
         });
       }
 
+      if(this.activateBlacklist) {
+        subgraphs = subgraphs.filter((i) => {
+          return !this.$store.state.subgraphBlacklist.includes(i.currentVersion.subgraphDeployment.ipfsHash);
+        });
+      }
+
+      if(this.activateSynclist) {
+        subgraphs = subgraphs.filter((i) => {
+          return this.$store.state.subgraphSynclist.includes(i.currentVersion.subgraphDeployment.ipfsHash);
+        });
+      }
       return subgraphs
     },
   },
