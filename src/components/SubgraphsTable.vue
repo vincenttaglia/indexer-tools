@@ -21,9 +21,8 @@
         v-model="selected"
         :key="id_key"
     >
-      <template v-slot:header="{ props: { headers } }">
+      <template v-slot:header="{ props: { headers } }" v-if="!selectable">
         <tr v-sortable="{onEnd:updateHeaderOrder}">
-          <th  v-if="selectable"></th>
           <template v-for="header in headers"  >
             <th :key="header.text"> 
               <v-icon left>
