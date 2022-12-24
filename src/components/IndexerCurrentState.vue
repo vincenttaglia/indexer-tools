@@ -20,6 +20,17 @@
         :show-select="this.selectable"
         v-model="selected"
     >
+      <template v-slot:header="{ props: { headers } }">
+        <tr v-sortable="{onEnd:updateHeaderOrder}">
+          <template v-for="header in headers"  >
+            <th :key="header.text"> 
+              <v-icon left>
+                mdi-drag-horizontal
+              </v-icon>
+            </th>
+          </template>
+        </tr>
+      </template>
       <template v-slot:item.subgraphDeployment.versions[0].subgraph.image="{ item }">
         <v-badge
             :value="item.subgraphDeployment.deniedAt"
@@ -139,6 +150,7 @@ import gql from 'graphql-tag';
 import t from "typy";
 import numeral from 'numeral';
 import BigNumber from "bignumber.js";
+import Sortable from 'sortablejs';
 export default {
   name: "IndexerCurrentState",
   apollo: {
@@ -257,6 +269,41 @@ export default {
       loading: true,
       moment: this.$moment,
       selected: [],
+      id_key: 1,
+      headers: [
+        {
+          text: 'Img',
+          align: 'start',
+          sortable: false,
+          value: 'subgraphDeployment.versions[0].subgraph.image',
+        },
+        { text: 'Name', value: 'subgraphDeployment.versions[0].subgraph.displayName' },
+        { text: 'Allocated', value: 'allocatedTokens'},
+        { text: 'Created', value: 'createdAt' },
+        { text: 'Allocation Duration', value: 'activeDuration'},
+        { text: 'Current APR', value: 'apr'},
+        { text: 'Est Daily Rewards', value: 'dailyrewards'},
+        { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
+        { text: 'Pending Rewards', value: 'pending_rewards'},
+        { text: 'Pending Rewards (After Cut)', value: 'pending_rewards_cut'},
+        {
+          text: 'Current Signal',
+          value: 'subgraphDeployment.signalledTokens',
+          filter: value => {
+            let BigNumber = this.$store.state.bigNumber;
+            if(parseInt(this.max_signal) && BigNumber(value).isGreaterThan(new BigNumber(this.$store.state.web3.utils.toWei(this.max_signal))))
+              return false;
+            if(parseInt(this.min_signal) && BigNumber(value).isLessThan(new BigNumber(this.$store.state.web3.utils.toWei(this.min_signal))))
+              return false;
+            return true;
+          },
+        },
+        { text: 'Current Proportion', value: 'proportion'},
+        { text: 'Current Allocations', value: 'subgraphDeployment.stakedTokens'},
+        { text: 'Total Query Fees', value: 'subgraphDeployment.queryFeesAmount'},
+        { text: 'Total Indexing Rewards', value: 'subgraphDeployment.indexingRewardAmount'},
+        { text: 'Deployment ID', value: 'subgraphDeployment.ipfsHash', sortable: false },
+      ],
       proxyContractABI: [
         {
           "anonymous": false,
@@ -805,6 +852,14 @@ export default {
     selectable: Boolean,
     subgraph_loading: Boolean,
   },
+  directives: {
+    'sortable': {
+        inserted: function ( el, binding, vNode) {
+          vNode;
+          new Sortable( el, binding.value || {} )
+        }
+      }
+  },
   computed: {
     pending_rewards_cut_sum(){
       return this.allocations.reduce((sum, cur) => cur.pending_rewards_cut ? sum.plus(cur.pending_rewards_cut): sum, new BigNumber(0));
@@ -844,44 +899,24 @@ export default {
     proxyContract() {
       return new this.$store.state.web3.eth.Contract(this.proxyContractABI, "0x9Ac758AB77733b4150A901ebd659cbF8cB93ED66");
     },
-    headers () {
-      return [
-        {
-          text: 'Img',
-          align: 'start',
-          sortable: false,
-          value: 'subgraphDeployment.versions[0].subgraph.image',
-        },
-        { text: 'Name', value: 'subgraphDeployment.versions[0].subgraph.displayName' },
-        { text: 'Allocated', value: 'allocatedTokens'},
-        { text: 'Created', value: 'createdAt' },
-        { text: 'Allocation Duration', value: 'activeDuration'},
-        { text: 'Current APR', value: 'apr'},
-        { text: 'Est Daily Rewards', value: 'dailyrewards'},
-        { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
-        { text: 'Pending Rewards', value: 'pending_rewards'},
-        { text: 'Pending Rewards (After Cut)', value: 'pending_rewards_cut'},
-        {
-          text: 'Current Signal',
-          value: 'subgraphDeployment.signalledTokens',
-          filter: value => {
-            let BigNumber = this.$store.state.bigNumber;
-            if(parseInt(this.max_signal) && BigNumber(value).isGreaterThan(new BigNumber(this.$store.state.web3.utils.toWei(this.max_signal))))
-              return false;
-            if(parseInt(this.min_signal) && BigNumber(value).isLessThan(new BigNumber(this.$store.state.web3.utils.toWei(this.min_signal))))
-              return false;
-            return true;
-          },
-        },
-        { text: 'Current Proportion', value: 'proportion'},
-        { text: 'Current Allocations', value: 'subgraphDeployment.stakedTokens'},
-        { text: 'Total Query Fees', value: 'subgraphDeployment.queryFeesAmount'},
-        { text: 'Total Indexing Rewards', value: 'subgraphDeployment.indexingRewardAmount'},
-        { text: 'Deployment ID', value: 'subgraphDeployment.ipfsHash', sortable: false },
-      ]
-    },
   },
   methods: {
+    updateHeaderOrder ( evt ) {
+          let headers = this.headers;
+          let old_index = evt.oldIndex;
+          let new_index = evt.newIndex;
+          if ( new_index >= headers.length) {
+              var k = new_index - headers.length + 1;
+              while (k--) {
+                  headers.push(undefined);
+              }
+          }
+          headers.splice(new_index, 0, headers.splice(old_index, 1)[0]);
+          this.headers = headers;
+          //- by setting an id as a :key on the table 
+          //- we force it to redraw when headers are moved
+          this.id ++;
+    },
     apr: function(signalledTokens, stakedTokens){
       let BigNumber = this.$store.state.bigNumber;
 

@@ -19,7 +19,19 @@
         mobile-breakpoint="0"
         :show-select="this.selectable"
         v-model="selected"
+        :key="id_key"
     >
+      <template v-slot:header="{ props: { headers } }">
+        <tr v-sortable="{onEnd:updateHeaderOrder}">
+          <template v-for="header in headers"  >
+            <th :key="header.text"> 
+              <v-icon left>
+                mdi-drag-horizontal
+              </v-icon>
+            </th>
+          </template>
+        </tr>
+      </template>
       <template v-slot:top>
         <tr>
           <td  class="mx-4">
@@ -149,6 +161,7 @@
 import gql from 'graphql-tag';
 import t from "typy";
 import numeral from 'numeral';
+import Sortable from 'sortablejs';
 export default {
   name: "SubgraphsTable",
   apollo: {
@@ -252,6 +265,14 @@ export default {
       },
     },
   },
+  directives: {
+    'sortable': {
+        inserted: function ( el, binding, vNode) {
+          vNode;
+          new Sortable( el, binding.value || {} )
+        }
+      }
+  },
   data () {
     return {
       search: '',
@@ -269,11 +290,8 @@ export default {
       loading: true,
       networks: [],
       networkFilter: [],
-    }
-  },
-  computed: {
-    headers () {
-      return [
+      id_key: 1,
+      headers: [
         {
           text: 'Img',
           align: 'start',
@@ -303,8 +321,10 @@ export default {
         { text: 'Total Query Fees', value: 'currentVersion.subgraphDeployment.queryFeesAmount'},
         { text: 'Total Indexing Rewards', value: 'currentVersion.subgraphDeployment.indexingRewardAmount'},
         { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
-      ]
-    },
+      ],
+    }
+  },
+  computed: {
     filteredSubgraphs(){
       let subgraphs = this.subgraphs;
       let networkFilter = this.networkFilter;
@@ -333,6 +353,22 @@ export default {
     simulateClosingAllocations: Array,
   },
   methods: {
+    updateHeaderOrder ( evt ) {
+          let headers = this.headers;
+          let old_index = evt.oldIndex;
+          let new_index = evt.newIndex;
+          if ( new_index >= headers.length) {
+              var k = new_index - headers.length + 1;
+              while (k--) {
+                  headers.push(undefined);
+              }
+          }
+          headers.splice(new_index, 0, headers.splice(old_index, 1)[0]);
+          this.headers = headers;
+          //- by setting an id as a :key on the table 
+          //- we force it to redraw when headers are moved
+          this.id ++;
+    },
     newapr: function(currentSignalledTokens, stakedTokens, new_allocation){
       let BigNumber = this.$store.state.bigNumber;
 
