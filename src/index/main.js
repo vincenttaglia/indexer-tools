@@ -41,6 +41,7 @@ const store = new Vuex.Store({
     subgraphs_per_page: Vue.$cookies.get("subgraphs_per_page") ? parseInt(Vue.$cookies.get("subgraphs_per_page")) : 15,
     indexingRewardCut: 0,
     automaticIndexingRewards: Vue.$cookies.get("automatic_indexing_rewards") === "true",
+    indexerHeaderOrder: Vue.$cookies.get("indexer_header_order") ? JSON.parse(Vue.$cookies.get("indexer_header_order")) : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
   },
   mutations: {
 

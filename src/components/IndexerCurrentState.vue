@@ -19,6 +19,7 @@
         mobile-breakpoint="0"
         :show-select="this.selectable"
         v-model="selected"
+        :key="id_key"
     >
       <template v-slot:header="{ props: { headers } }">
         <tr v-sortable="{onEnd:updateHeaderOrder}">
@@ -270,23 +271,24 @@ export default {
       moment: this.$moment,
       selected: [],
       id_key: 1,
-      headers: [
-        {
+      header_order: this.$store.state.indexerHeaderOrder,
+      header_objects: {
+        0: {
           text: 'Img',
           align: 'start',
           sortable: false,
           value: 'subgraphDeployment.versions[0].subgraph.image',
         },
-        { text: 'Name', value: 'subgraphDeployment.versions[0].subgraph.displayName' },
-        { text: 'Allocated', value: 'allocatedTokens'},
-        { text: 'Created', value: 'createdAt' },
-        { text: 'Allocation Duration', value: 'activeDuration'},
-        { text: 'Current APR', value: 'apr'},
-        { text: 'Est Daily Rewards', value: 'dailyrewards'},
-        { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
-        { text: 'Pending Rewards', value: 'pending_rewards'},
-        { text: 'Pending Rewards (After Cut)', value: 'pending_rewards_cut'},
-        {
+        1: { text: 'Name', value: 'subgraphDeployment.versions[0].subgraph.displayName' },
+        2: { text: 'Allocated', value: 'allocatedTokens'},
+        3: { text: 'Created', value: 'createdAt' },
+        4: { text: 'Allocation Duration', value: 'activeDuration'},
+        5: { text: 'Current APR', value: 'apr'},
+        6: { text: 'Est Daily Rewards', value: 'dailyrewards'},
+        7: { text: 'Est Daily Rewards (After Cut)', value: 'dailyrewards_cut'},
+        8: { text: 'Pending Rewards', value: 'pending_rewards'},
+        9: { text: 'Pending Rewards (After Cut)', value: 'pending_rewards_cut'},
+        10: {
           text: 'Current Signal',
           value: 'subgraphDeployment.signalledTokens',
           filter: value => {
@@ -298,12 +300,12 @@ export default {
             return true;
           },
         },
-        { text: 'Current Proportion', value: 'proportion'},
-        { text: 'Current Allocations', value: 'subgraphDeployment.stakedTokens'},
-        { text: 'Total Query Fees', value: 'subgraphDeployment.queryFeesAmount'},
-        { text: 'Total Indexing Rewards', value: 'subgraphDeployment.indexingRewardAmount'},
-        { text: 'Deployment ID', value: 'subgraphDeployment.ipfsHash', sortable: false },
-      ],
+        11: { text: 'Current Proportion', value: 'proportion'},
+        12: { text: 'Current Allocations', value: 'subgraphDeployment.stakedTokens'},
+        13: { text: 'Total Query Fees', value: 'subgraphDeployment.queryFeesAmount'},
+        14: { text: 'Total Indexing Rewards', value: 'subgraphDeployment.indexingRewardAmount'},
+        15: { text: 'Deployment ID', value: 'subgraphDeployment.ipfsHash', sortable: false },
+      },
       proxyContractABI: [
         {
           "anonymous": false,
@@ -861,6 +863,13 @@ export default {
       }
   },
   computed: {
+    headers(){
+      let headers = [];
+      for(let header_index in this.header_order){
+        headers.push(this.header_objects[this.header_order[header_index]])
+      }
+      return headers;
+    },
     pending_rewards_cut_sum(){
       return this.allocations.reduce((sum, cur) => cur.pending_rewards_cut ? sum.plus(cur.pending_rewards_cut): sum, new BigNumber(0));
     },
@@ -902,7 +911,7 @@ export default {
   },
   methods: {
     updateHeaderOrder ( evt ) {
-          let headers = this.headers;
+          let headers = this.header_order;
           let old_index = evt.oldIndex;
           let new_index = evt.newIndex;
           if ( new_index >= headers.length) {
@@ -912,10 +921,9 @@ export default {
               }
           }
           headers.splice(new_index, 0, headers.splice(old_index, 1)[0]);
-          this.headers = headers;
-          //- by setting an id as a :key on the table 
-          //- we force it to redraw when headers are moved
-          this.id ++;
+          this.header_order = headers;
+          this.$store.state.indexerHeaderOrder = headers;
+          this.id_key++;
     },
     apr: function(signalledTokens, stakedTokens){
       let BigNumber = this.$store.state.bigNumber;
