@@ -1,5 +1,13 @@
 <template>
   <div>
+    <v-btn
+        color="primary"
+        text
+        @click="getPendingAllocationRewards();"
+
+    >
+      Get allocation rewards
+    </v-btn>
     <v-data-table
         :headers="headers"
         :items="this.$store.state.allocations"
@@ -10,7 +18,7 @@
         :sort-by.sync="sortBy"
         :sort-desc.sync="sortDesc"
         :footer-props="{
-          'items-per-page-options': [5, 10, 15, 20, 25, 30, 40, 50]
+          'items-per-page-options': [5, 10, 15, 20, 25, 30, 40, 50, 100]
         }"
         :items-per-page.sync="allocations_per_page"
         @update:items-per-page="updateAllocationsPerPage"
