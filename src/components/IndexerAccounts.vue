@@ -18,7 +18,7 @@
     </template>
     <script>
     export default {
-      name: "Indexer Accounts",
+      name: "IndexerAccounts",
       data () {
         return {
             indexerAccounts: this.$store.state.indexerAccounts,

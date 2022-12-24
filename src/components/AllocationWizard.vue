@@ -2483,13 +2483,19 @@ export default {
       let BigNumber = this.$store.state.bigNumber;
       let totalClosing = this.selectedAllocations.reduce((sum, cur) => sum.plus(cur.allocatedTokens), BigNumber(0));
       let totalRewards = this.selectedAllocations.reduce((sum, cur) => sum.plus(cur.pending_rewards), BigNumber(0));
+
+      if(totalRewards.constructor.name != "BigNumber" || totalRewards.isNaN())
+        totalRewards = BigNumber(0);
+
       console.log("Total Closing");
       console.log(totalClosing);
+
       let totalOpening = 0;
       for(const i in this.newAllocationSizes){
         totalOpening += this.newAllocationSizes[i];
       }
       console.log(totalOpening);
+      
       //this.newAllocationSizes.reduce((sum,cur) => sum + cur);
       if(this.restakeRewards)
         return BigNumber(this.availableStake).plus(totalClosing).plus(totalRewards).minus(this.$store.state.web3.utils.toWei(totalOpening.toString()));
