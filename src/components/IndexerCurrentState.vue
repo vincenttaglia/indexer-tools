@@ -240,8 +240,8 @@ export default {
         }*/
         console.log(networkStatus);
         this.loading = false;
-        /*if(!this.subgraph_loading)
-          this.getPendingAllocationRewards();*/
+        if(!this.subgraph_loading && this.automaticIndexingRewards)
+          this.getPendingAllocationRewards();
       },
     },
   },
@@ -254,6 +254,7 @@ export default {
       web3: this.$store.state.web3,
       allocations: this.$store.state.allocations,
       allocations_per_page: this.$store.state.allocations_per_page,
+      automaticIndexingRewards: this.$store.state.automaticIndexingRewards,
       numeral,
       sortBy: 'activeDuration',
       sortDesc: true,
@@ -994,8 +995,8 @@ export default {
       this.$emit("yearly-rewards-set", value);
     },
     subgraph_loading: function(value){
-      if(!value){
-        //this.getPendingAllocationRewards();
+      if(!value && this.automaticIndexingRewards){
+        this.getPendingAllocationRewards();
       }
     }
   }

@@ -37,16 +37,12 @@
         <v-tab-item>
             <v-card flat>
             <v-card-text>
+                <v-switch
+                v-model="automaticIndexingRewards"
+                :label="`Automatic Indexing Rewards*`"
+                ></v-switch>
                 <p>
-                Sed aliquam ultrices mauris. Donec posuere vulputate arcu. Morbi ac felis. Etiam feugiat lorem non metus. Sed a libero.
-                </p>
-
-                <p>
-                Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Aliquam lobortis. Aliquam lobortis. Suspendisse non nisl sit amet velit hendrerit rutrum.
-                </p>
-
-                <p class="mb-0">
-                Phasellus dolor. Fusce neque. Fusce fermentum odio nec arcu. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Phasellus blandit leo ut odio.
+                    * Disable if there are issues with allocation wizard.
                 </p>
             </v-card-text>
             </v-card>
@@ -93,6 +89,7 @@ import IndexerAccounts from './IndexerAccounts.vue';
       data () {
         return {
             indexerAccounts: this.$store.state.indexerAccounts,
+            automaticIndexingRewards: this.$store.state.automaticIndexingRewards
         }
       },
       props: {
@@ -102,6 +99,11 @@ import IndexerAccounts from './IndexerAccounts.vue';
         console.log("test");
         this.$emit("update-loading", false);
       },
+      watch: {
+        automaticIndexingRewards: function(value) {
+          this.setAutomaticIndexingRewards(value);
+        },
+      }
     }
     </script>
     
