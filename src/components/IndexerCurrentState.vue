@@ -1,13 +1,5 @@
 <template>
   <div>
-    <v-btn
-        color="primary"
-        text
-        @click="getPendingAllocationRewards();"
-
-    >
-      Get allocation rewards
-    </v-btn>
     <v-data-table
         :headers="headers"
         :items="this.$store.state.allocations"
@@ -82,7 +74,9 @@
         <span
           v-if="item.pending_rewards === null"
           >
-          -
+          <v-icon left @click="getPendingAllocationRewards();">
+            mdi-download
+          </v-icon>
         </span>
         <v-progress-circular
             indeterminate
@@ -100,7 +94,9 @@
         <span
           v-if="item.pending_rewards === null"
           >
-          -
+          <v-icon left @click="getPendingAllocationRewards();">
+            mdi-download
+          </v-icon>
         </span>
         <v-progress-circular
             indeterminate
