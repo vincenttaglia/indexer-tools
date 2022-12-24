@@ -57,13 +57,10 @@
         <v-tab-item>
             <v-card flat>
             <v-card-text>
-                <p>
-                Fusce a quam. Phasellus nec sem in justo pellentesque facilisis. Nam eget dui. Proin viverra, ligula sit amet ultrices semper, ligula arcu tristique sapien, a accumsan nisi mauris ac eros. In dui magna, posuere eget, vestibulum et, tempor auctor, justo.
-                </p>
-
-                <p class="mb-0">
-                Cras sagittis. Phasellus nec sem in justo pellentesque facilisis. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nam at tortor in tellus interdum sagittis.
-                </p>
+                <h3>Subgraph Sync List (Manual)</h3>
+                <v-textarea rows="3" v-model="subgraphSynclist"></v-textarea>
+                <h3>Subgraph Blacklist</h3>
+                <v-textarea rows="3" v-model="subgraphBlacklist"></v-textarea>
             </v-card-text>
             </v-card>
         </v-tab-item>
@@ -89,7 +86,9 @@ import IndexerAccounts from './IndexerAccounts.vue';
       data () {
         return {
             indexerAccounts: this.$store.state.indexerAccounts,
-            automaticIndexingRewards: this.$store.state.automaticIndexingRewards
+            automaticIndexingRewards: this.$store.state.automaticIndexingRewards,
+            subgraphSynclist: this.$store.state.subgraphSynclist,
+            subgraphBlacklist: this.$store.state.subgraphBlacklist,
         }
       },
       props: {
@@ -102,6 +101,14 @@ import IndexerAccounts from './IndexerAccounts.vue';
       watch: {
         automaticIndexingRewards: function(value) {
           this.setAutomaticIndexingRewards(value);
+        },
+        subgraphSynclist: function(value){
+            this.$store.state.subgraphSynclist = value;
+            this.$cookies.set("subgraph_synclist",value);
+        },
+        subgraphBlacklist: function(value){
+            this.$store.state.subgraphBlacklist = value;
+            this.$cookies.set("subgraph_blacklist",value);
         },
       }
     }

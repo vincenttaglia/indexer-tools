@@ -47,6 +47,8 @@ const store = new Vuex.Store({
     indexerSortDesc: Vue.$cookies.isKey("indexer_sort_desc")? Vue.$cookies.get("indexer_sort_desc") === "true" : true,
     subgraphSortBy: Vue.$cookies.isKey("subgraph_sort_by") ? Vue.$cookies.get("subgraph_sort_by") : 'newapr',
     subgraphSortDesc: Vue.$cookies.isKey("subgraph_sort_desc") ? Vue.$cookies.get("subgraph_sort_desc") === "true" : true,
+    subgraphBlacklist: Vue.$cookies.isKey("subgraph_blacklist") ? Vue.$cookies.get("subgraph_blacklist") : "",
+    subgraphSynclist: Vue.$cookies.isKey("subgraph_synclist") ? Vue.$cookies.get("subgraph_synclist") : "",
   },
   mutations: {
 
