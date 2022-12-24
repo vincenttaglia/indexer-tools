@@ -287,8 +287,8 @@ export default {
       subgraphs: this.$store.state.subgraphs,
       subgraphs_per_page: this.$store.state.subgraphs_per_page,
       numeral,
-      sortBy: 'newapr',
-      sortDesc: true,
+      sortBy: this.$store.state.subgraphSortBy,
+      sortDesc: this.$store.state.subgraphSortDesc,
       selected: [],
       noRewardsFilter: 0,
       loading: true,
@@ -491,6 +491,14 @@ export default {
     },
     loading: function(){
       this.$emit("update-loading");
+    },
+    sortBy: function(value){
+      this.$store.state.subgraphSortBy = value;
+      this.$cookies.set("subgraph_sort_By",value);
+    },
+    sortDesc: function(value){
+      this.$store.state.subgraphSortDesc = value;
+      this.$cookies.set("subgraph_sort_desc",value);
     }
   }
 }

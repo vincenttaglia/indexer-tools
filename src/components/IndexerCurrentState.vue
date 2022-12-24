@@ -266,8 +266,8 @@ export default {
       allocations_per_page: this.$store.state.allocations_per_page,
       automaticIndexingRewards: this.$store.state.automaticIndexingRewards,
       numeral,
-      sortBy: 'activeDuration',
-      sortDesc: true,
+      sortBy: this.$store.state.indexerSortBy,
+      sortDesc: this.$store.state.indexerSortDesc,
       loading: true,
       moment: this.$moment,
       selected: [],
@@ -1041,6 +1041,14 @@ export default {
       if(!value && this.automaticIndexingRewards){
         this.getPendingAllocationRewards();
       }
+    },
+    sortBy: function(value){
+      this.$store.state.indexerSortBy = value;
+      this.$cookies.set("indexer_sort_by",value);
+    },
+    sortDesc: function(value){
+      this.$store.state.indexerSortDesc = value;
+      this.$cookies.set("indexer_sort_desc",value);
     }
   }
 }
