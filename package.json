@@ -1,6 +1,6 @@
 {
   "name": "indexer-tools",
-  "version": "1.2.0",
+  "version": "2.1.0",
   "engines": {
     "node": "15.x"
   },
