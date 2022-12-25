@@ -1076,6 +1076,7 @@ export default {
       }
     },
     loading: function(value){
+      this.$emit("update-loading");
       if(!value && !this.subgraph_loading && this.automaticIndexingRewards){
         this.getPendingAllocationRewards();
       }
