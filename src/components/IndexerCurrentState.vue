@@ -276,8 +276,8 @@ export default {
         }*/
         console.log(networkStatus);
         this.loading = false;
-        if(!this.subgraph_loading && this.automaticIndexingRewards)
-          this.getPendingAllocationRewards();
+        //if(!this.subgraph_loading && this.automaticIndexingRewards)
+        //  this.getPendingAllocationRewards();
       },
     },
   },
@@ -1049,8 +1049,11 @@ export default {
           console.log(value);
           allocation.pending_rewards = value;
           allocation.pending_rewards_cut = indexerCut(new bigNumber(value));
+          console.log(allocation.pending_rewards);
         });
+        console.log(allocation.pending_rewards);
       }
+      
       this.$store.state.allocations = this.allocations;
     },
   },

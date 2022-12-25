@@ -40,15 +40,15 @@ const store = new Vuex.Store({
     allocations_per_page: Vue.$cookies.isKey("allocations_per_page") ? parseInt(Vue.$cookies.get("allocations_per_page")) : 15,
     subgraphs_per_page: Vue.$cookies.isKey("subgraphs_per_page") ? parseInt(Vue.$cookies.get("subgraphs_per_page")) : 15,
     indexingRewardCut: 0,
-    automaticIndexingRewards: Vue.$cookies.isKey("automatic_indexing_rewards") === "true",
+    automaticIndexingRewards: Vue.$cookies.get("automatic_indexing_rewards") === "true",
     indexerHeaderOrder: Vue.$cookies.isKey("indexer_header_order") ? JSON.parse(Vue.$cookies.get("indexer_header_order")) : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
     subgraphHeaderOrder: Vue.$cookies.isKey("subgraph_header_order") ? JSON.parse(Vue.$cookies.get("subgraph_header_order")) : [0,1,13,2,3,4,5,6,7,8,9,10,11,12],
     indexerSortBy: Vue.$cookies.isKey("indexer_sort_by") ? Vue.$cookies.get("indexer_sort_by") : 'activeDuration',
     indexerSortDesc: Vue.$cookies.isKey("indexer_sort_desc")? Vue.$cookies.get("indexer_sort_desc") === "true" : true,
     subgraphSortBy: Vue.$cookies.isKey("subgraph_sort_by") ? Vue.$cookies.get("subgraph_sort_by") : 'newapr',
     subgraphSortDesc: Vue.$cookies.isKey("subgraph_sort_desc") ? Vue.$cookies.get("subgraph_sort_desc") === "true" : true,
-    subgraphBlacklist: Vue.$cookies.isKey("subgraph_blacklist") ? Vue.$cookies.get("subgraph_blacklist") : "",
-    subgraphSynclist: Vue.$cookies.isKey("subgraph_synclist") ? Vue.$cookies.get("subgraph_synclist") : "",
+    subgraphBlacklist: Vue.$cookies.get("subgraph_blacklist") ? Vue.$cookies.get("subgraph_blacklist") : "",
+    subgraphSynclist: Vue.$cookies.get("subgraph_synclist") ? Vue.$cookies.get("subgraph_synclist") : "",
   },
   mutations: {
 
@@ -131,7 +131,7 @@ Vue.mixin({
         return name;
     },
     setAutomaticIndexingRewards(setting){
-      store.state.getIndexingRewardsAutomatically = setting;
+      store.state.automaticIndexingRewards = setting;
       Vue.$cookies.set("automatic_indexing_rewards", setting);
     },
     updateIndexerAccounts(indexerAccounts){
