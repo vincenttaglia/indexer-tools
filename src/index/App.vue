@@ -57,6 +57,7 @@
           <v-btn
               v-on="on"
               text
+              :disabled="loading"
           >
             {{ indexerName }}
             -
