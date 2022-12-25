@@ -16,7 +16,7 @@ export default {
   created(){
     console.log(this.urlIndexer);
     this.addIndexerAccount(this.urlIndexer, "");
-    this.$router.push('/');
+    this.$router.push('/allocations');
   },
 }
 </script>
