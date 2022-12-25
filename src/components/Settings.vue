@@ -40,10 +40,15 @@
                 <v-switch
                 v-model="automaticIndexingRewards"
                 :label="`Automatic Indexing Rewards*`"
+                class="mb-0"
                 ></v-switch>
-                <p>
+                <p class="mb-8">
                     * Disable if there are issues with allocation wizard.
                 </p>
+                <h3>Subgraph Sync List (Manual)</h3>
+                <v-textarea rows="3" v-model="subgraphSynclist"></v-textarea>
+                <h3>Subgraph Blacklist</h3>
+                <v-textarea rows="3" v-model="subgraphBlacklist"></v-textarea>
             </v-card-text>
             </v-card>
         </v-tab-item>
@@ -57,10 +62,7 @@
         <v-tab-item>
             <v-card flat>
             <v-card-text>
-                <h3>Subgraph Sync List (Manual)</h3>
-                <v-textarea rows="3" v-model="subgraphSynclist"></v-textarea>
-                <h3>Subgraph Blacklist</h3>
-                <v-textarea rows="3" v-model="subgraphBlacklist"></v-textarea>
+
             </v-card-text>
             </v-card>
         </v-tab-item>

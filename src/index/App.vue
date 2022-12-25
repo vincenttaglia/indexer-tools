@@ -197,6 +197,7 @@ export default {
           totalTokensSignalled
           networkGRTIssuance
           totalSupply
+          currentEpoch
         }
       }`,
       update(data) {

@@ -50,10 +50,34 @@
         {{ numeral(web3.utils.fromWei(item.allocatedTokens.toString())).format('0,0') }} GRT
       </template>
       <template v-slot:item.createdAt="{ item }">
-        <span :timestamp="item.createdAt">{{ item.createdAt | moment("MMM D, YYYY HH:mm") }}</span>
+        <span :timestamp="item.createdAt">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <span
+                v-bind="attrs"
+                v-on="on"
+              >
+              {{ item.createdAt | moment("MMM D, YYYY HH:mm") }}
+              </span>
+            </template>
+            <span>Epoch {{ item.createdAtEpoch }}</span>
+          </v-tooltip>
+        </span>
       </template>
       <template v-slot:item.activeDuration="{ item }">
-        <span :timestamp="item.activeDuration">{{ item.readableDuration }}</span>
+        <span :timestamp="item.activeDuration">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <span
+                v-bind="attrs"
+                v-on="on"
+              >
+              {{ item.readableDuration }}
+              </span>
+            </template>
+            <span>{{ item.epochDuration }} epochs</span>
+          </v-tooltip>
+        </span>
       </template>
       <template v-slot:item.subgraphDeployment.signalledTokens="{ item }">
         {{ numeral(web3.utils.fromWei(item.subgraphDeployment.signalledTokens.toString())).format('0,0') }} GRT
@@ -207,6 +231,9 @@ export default {
             allocation.readableDuration = this.readableDuration(allocation.activeDuration);
             console.log(allocation.activeDuration);
             console.log(allocation.readableDuration);
+
+            // epoch duration
+            allocation.epochDuration = this.$store.state.graphNetwork.currentEpoch - allocation.createdAtEpoch;
 
             // proportion
             if (allocation.subgraphDeployment.stakedTokens > 0)
