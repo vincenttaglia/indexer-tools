@@ -14,7 +14,7 @@ import numeral from 'numeral';
 import VueCookies from 'vue-cookies';
 import AllocationWizard from "../components/AllocationWizard";
 import SubgraphsDashboard from "../components/SubgraphsDashboard";
-import IndexerDashboard from "../components/IndexerDashboard";
+import AllocationsDashboard from "../components/AllocationsDashboard";
 import VueRouter from "vue-router";
 import BookmarkSupport from "../components/BookmarkSupport";
 import Settings from "../components/Settings";
@@ -60,7 +60,7 @@ Vue.use(VueRouter)
 
 const routes = [
   { path: '/', component: SubgraphsDashboard }, //, props: { indexer: store.state.indexer, indexingRewardCut: store.state.indexingRewardCut }
-  { path: '/indexer', component: IndexerDashboard },
+  { path: '/indexer', component: AllocationsDashboard },
   { path: '/wizard', component: AllocationWizard },
   { path: '/indexer/:urlIndexer', component: BookmarkSupport, props: true },
   { path: '/settings', component: Settings },

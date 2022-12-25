@@ -29,7 +29,7 @@
             class="ml-2 mr-2"
             :disabled="loading"
         >
-          Indexer Dashboard
+          Allocations Dashboard
         </v-btn>
         <v-btn
             text

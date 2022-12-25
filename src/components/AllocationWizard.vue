@@ -31,7 +31,7 @@
         </v-stepper-step>
       </v-stepper-header>
       <v-stepper-content step="1">
-        <IndexerDashboard :indexer="indexer" :subgraph_loading="loading" selectable @allocations-selected="selectAllocations" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
+        <AllocationsDashboard :indexer="indexer" :subgraph_loading="loading" selectable @allocations-selected="selectAllocations" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
         <div class="mt-12 mb-10 ml-5">
           <v-btn
               color="primary"
@@ -178,7 +178,7 @@
 
 <script>
 import SubgraphsDashboard from "@/components/SubgraphsDashboard";
-import IndexerDashboard from "@/components/IndexerDashboard";
+import AllocationsDashboard from "@/components/AllocationsDashboard";
 //import gql from "graphql-tag";
 //import t from "typy";
 import numeral from 'numeral';
@@ -2371,7 +2371,7 @@ export default {
   },
   components: {
     AllocationSetter,
-    IndexerDashboard,
+    AllocationsDashboard,
     SubgraphsDashboard,
   },
   apollo: {

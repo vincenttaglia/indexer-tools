@@ -62,7 +62,9 @@
         <v-tab-item>
             <v-card flat>
             <v-card-text>
-
+                <p>
+                    Soon: more columns and control over which columns are shown. Change order of columns now on dashboard pages.
+                </p>
             </v-card-text>
             </v-card>
         </v-tab-item>
