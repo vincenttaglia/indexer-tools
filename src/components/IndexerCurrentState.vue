@@ -1038,6 +1038,10 @@ export default {
     },
     getPendingAllocationRewards: function(){
       for(let i = 0; i < this.allocations.length; i++) {
+        this.allocations[i].pending_rewards = -1;
+        this.allocations[i].pending_rewards_cut = -1;
+      }
+      for(let i = 0; i < this.allocations.length; i++) {
         let allocation = this.allocations[i];
         let indexerCut = this.indexerCut;
         let bigNumber = this.$store.state.bigNumber;
