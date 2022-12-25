@@ -252,9 +252,11 @@ export default {
               allocation.dailyrewards = 0;
               allocation.dailyrewards_cut = 0;
             }
-
-            allocation.pending_rewards = null;
-            allocation.pending_rewards_cut = null;
+            
+            if(!('pending_rewards' in allocation)){
+              allocation.pending_rewards = null;
+              allocation.pending_rewards_cut = null;
+            }
 
             this.$store.state.allocations.push(allocation);
           }
@@ -1037,24 +1039,28 @@ export default {
       return `${d}d ${h}h ${m}m`;
     },
     getPendingAllocationRewards: function(){
-      for(let i = 0; i < this.allocations.length; i++) {
-        this.allocations[i].pending_rewards = -1;
-        this.allocations[i].pending_rewards_cut = -1;
-      }
-      for(let i = 0; i < this.allocations.length; i++) {
-        let allocation = this.allocations[i];
-        let indexerCut = this.indexerCut;
-        let bigNumber = this.$store.state.bigNumber;
-        this.proxyContract.methods.getRewards(allocation.id).call(function(error, value) {
-          console.log(value);
-          allocation.pending_rewards = value;
-          allocation.pending_rewards_cut = indexerCut(new bigNumber(value));
+      if(this.allocations[0] && this.allocations[0].pending_rewards === null){
+        for(let i = 0; i < this.allocations.length; i++) {
+          this.allocations[i].pending_rewards = -1;
+          this.allocations[i].pending_rewards_cut = -1;
+        }
+        for(let i = 0; i < this.allocations.length; i++) {
+          let allocation = this.allocations[i];
+          let indexerCut = this.indexerCut;
+          let bigNumber = this.$store.state.bigNumber;
+          this.proxyContract.methods.getRewards(allocation.id).call(function(error, value) {
+            console.log(value);
+            allocation.pending_rewards = value;
+            allocation.pending_rewards_cut = indexerCut(new bigNumber(value));
+            console.log(allocation.pending_rewards);
+          });
           console.log(allocation.pending_rewards);
-        });
-        console.log(allocation.pending_rewards);
+        }
+        
+        this.$store.state.allocations = this.allocations;
       }
       
-      this.$store.state.allocations = this.allocations;
+      
     },
   },
   watch: {
