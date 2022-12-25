@@ -25,7 +25,7 @@
         </v-btn>
         <v-btn
             text
-            to="/indexer"
+            to="/allocations"
             class="ml-2 mr-2"
             :disabled="loading"
         >

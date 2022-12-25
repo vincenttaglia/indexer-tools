@@ -60,7 +60,7 @@ Vue.use(VueRouter)
 
 const routes = [
   { path: '/', component: SubgraphsDashboard }, //, props: { indexer: store.state.indexer, indexingRewardCut: store.state.indexingRewardCut }
-  { path: '/indexer', component: AllocationsDashboard },
+  { path: '/allocations', component: AllocationsDashboard },
   { path: '/wizard', component: AllocationWizard },
   { path: '/indexer/:urlIndexer', component: BookmarkSupport, props: true },
   { path: '/settings', component: Settings },
