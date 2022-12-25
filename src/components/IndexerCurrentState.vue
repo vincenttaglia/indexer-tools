@@ -108,7 +108,7 @@
       </template>
       <template v-slot:item.pending_rewards="{ item }">
         <span
-          v-if="item.pending_rewards === null"
+          v-if="item.pending_rewards === null && !automaticIndexingRewards"
           >
           <v-icon left @click="getPendingAllocationRewards();">
             mdi-download
@@ -117,7 +117,7 @@
         <v-progress-circular
             indeterminate
             color="purple"
-            v-if="item.pending_rewards === -1"
+            v-if="item.pending_rewards === -1 || (automaticIndexingRewards && item.pending_rewards === null)"
         ></v-progress-circular>
         <span
           v-if="item.pending_rewards !== null && item.pending_rewards >= 0"
@@ -128,7 +128,7 @@
       </template>
       <template v-slot:item.pending_rewards_cut="{ item }">
         <span
-          v-if="item.pending_rewards === null"
+          v-if="item.pending_rewards === null && !automaticIndexingRewards"
           >
           <v-icon left @click="getPendingAllocationRewards();">
             mdi-download
@@ -137,7 +137,7 @@
         <v-progress-circular
             indeterminate
             color="purple"
-            v-if="item.pending_rewards_cut === -1"
+            v-if="item.pending_rewards_cut === -1 || (automaticIndexingRewards && item.pending_rewards === null)"
         ></v-progress-circular>
         <span
             v-if="item.pending_rewards_cut !== null && item.pending_rewards_cut >= 0"
@@ -1071,7 +1071,12 @@ export default {
       this.$emit("yearly-rewards-set", value);
     },
     subgraph_loading: function(value){
-      if(!value && this.automaticIndexingRewards){
+      if(!value && !this.loading && this.automaticIndexingRewards){
+        this.getPendingAllocationRewards();
+      }
+    },
+    loading: function(value){
+      if(!value && !this.subgraph_loading && this.automaticIndexingRewards){
         this.getPendingAllocationRewards();
       }
     },
