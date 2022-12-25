@@ -179,7 +179,7 @@ import t from "typy";
 import numeral from 'numeral';
 import Sortable from 'sortablejs';
 export default {
-  name: "SubgraphsTable",
+  name: "SubgraphsDashboard",
   apollo: {
     subgraphs: {
       query: gql`query subgraphs($skip: Int!){

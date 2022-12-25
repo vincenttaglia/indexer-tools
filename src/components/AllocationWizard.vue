@@ -31,7 +31,7 @@
         </v-stepper-step>
       </v-stepper-header>
       <v-stepper-content step="1">
-        <IndexerCurrentState :indexer="indexer" :subgraph_loading="loading" selectable @allocations-selected="selectAllocations" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
+        <IndexerDashboard :indexer="indexer" :subgraph_loading="loading" selectable @allocations-selected="selectAllocations" v-on:allocated-stake-set="updateTotalAllocatedStake" v-on:yearly-rewards-set="updateTotalRewardsPerYear"/>
         <div class="mt-12 mb-10 ml-5">
           <v-btn
               color="primary"
@@ -43,7 +43,7 @@
       </v-stepper-content>
 
       <v-stepper-content step="2">
-        <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="selectedAllocationsCount" :simulateClosingAllocations="selectedAllocations" @subgraphs-selected="selectSubgraphs" @update-loading="updateLoading" selectable />
+        <SubgraphsDashboard :indexingRewardCut="indexingRewardCut" :key="selectedAllocationsCount" :simulateClosingAllocations="selectedAllocations" @subgraphs-selected="selectSubgraphs" @update-loading="updateLoading" selectable />
         <div class="mt-12 mb-10 ml-5">
           <v-btn
               color="primary"
@@ -177,8 +177,8 @@
 </template>
 
 <script>
-import SubgraphsTable from "@/components/SubgraphsTable";
-import IndexerCurrentState from "@/components/IndexerCurrentState";
+import SubgraphsDashboard from "@/components/SubgraphsDashboard";
+import IndexerDashboard from "@/components/IndexerDashboard";
 //import gql from "graphql-tag";
 //import t from "typy";
 import numeral from 'numeral';
@@ -2371,8 +2371,8 @@ export default {
   },
   components: {
     AllocationSetter,
-    IndexerCurrentState,
-    SubgraphsTable,
+    IndexerDashboard,
+    SubgraphsDashboard,
   },
   apollo: {
     indexerCut: {

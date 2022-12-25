@@ -1,13 +1,13 @@
 <template>
   <v-main>
-    <IndexerCurrentState :indexer="indexer" :subgraph_loading="loading"/>
-    <SubgraphsTable :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" @update-loading="updateLoading" :simulateClosingAllocations="[]"/>
+    <IndexerDashboard :indexer="indexer" :subgraph_loading="loading"/>
+    <SubgraphsDashboard :indexingRewardCut="indexingRewardCut" :key="indexingRewardCut" @update-loading="updateLoading" :simulateClosingAllocations="[]"/>
   </v-main>
 </template>
 
 <script>
-import SubgraphsTable from "./SubgraphsTable";
-import IndexerCurrentState from "./IndexerCurrentState";
+import SubgraphsDashboard from "./SubgraphsDashboard";
+import IndexerDashboard from "./IndexerDashboard";
 export default {
   name: "OverviewBrowser.vue",
   data() {
@@ -33,8 +33,8 @@ export default {
     },
   },
   components: {
-    SubgraphsTable,
-    IndexerCurrentState,
+    SubgraphsDashboard,
+    IndexerDashboard,
   },
 }
 </script>

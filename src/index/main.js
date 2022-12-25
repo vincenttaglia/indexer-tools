@@ -12,8 +12,9 @@ import BigNumber from "bignumber.js";
 import numeral from 'numeral';
 
 import VueCookies from 'vue-cookies';
-import OverviewBrowser from "../components/OverviewBrowser";
 import AllocationWizard from "../components/AllocationWizard";
+import SubgraphsDashboard from "../components/SubgraphsDashboard";
+import IndexerDashboard from "../components/IndexerDashboard";
 import VueRouter from "vue-router";
 import BookmarkSupport from "../components/BookmarkSupport";
 import Settings from "../components/Settings";
@@ -34,7 +35,7 @@ const store = new Vuex.Store({
     subgraph_ids: [],
     subgraphCount: 0,
     allocations: [],
-    indexer: Vue.$cookies.isKey("indexer") ? Vue.$cookies.get("indexer") : "0xeddd4ec5d3775de964416b7b9d4da885f530f90a",
+    indexer: Vue.$cookies.get("indexer") ? Vue.$cookies.get("indexer") : "0xeddd4ec5d3775de964416b7b9d4da885f530f90a",
     indexerAccounts: Vue.$cookies.isKey("indexerAccounts") ? JSON.parse(Vue.$cookies.get("indexerAccounts")) : [{name: "vincenttaglia.eth", active: true, address: Vue.$cookies.get("indexer") ? Vue.$cookies.get("indexer") : "0xeddd4ec5d3775de964416b7b9d4da885f530f90a" }],
     new_allocation: Vue.$cookies.isKey("new_allocation") ? Vue.$cookies.get("new_allocation") : "100000",
     allocations_per_page: Vue.$cookies.isKey("allocations_per_page") ? parseInt(Vue.$cookies.get("allocations_per_page")) : 15,
@@ -58,7 +59,8 @@ const store = new Vuex.Store({
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/', component: OverviewBrowser }, //, props: { indexer: store.state.indexer, indexingRewardCut: store.state.indexingRewardCut }
+  { path: '/', component: SubgraphsDashboard }, //, props: { indexer: store.state.indexer, indexingRewardCut: store.state.indexingRewardCut }
+  { path: '/indexer', component: IndexerDashboard },
   { path: '/wizard', component: AllocationWizard },
   { path: '/indexer/:urlIndexer', component: BookmarkSupport, props: true },
   { path: '/settings', component: Settings },

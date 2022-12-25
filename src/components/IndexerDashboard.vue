@@ -177,7 +177,7 @@ import numeral from 'numeral';
 import BigNumber from "bignumber.js";
 import Sortable from 'sortablejs';
 export default {
-  name: "IndexerCurrentState",
+  name: "IndexerDashboard",
   apollo: {
     allocations: {
       query: gql`query allocations($indexer: String!){

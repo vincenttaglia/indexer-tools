@@ -21,12 +21,20 @@
             class="ml-5 mr-2"
             :disabled="loading"
         >
-          Indexer 2ools
+          Subgraphs Dashboard
+        </v-btn>
+        <v-btn
+            text
+            to="/indexer"
+            class="ml-2 mr-2"
+            :disabled="loading"
+        >
+          Indexer Dashboard
         </v-btn>
         <v-btn
             text
             to="/wizard"
-            class="ml-2 mr-5"
+            class="ml-2 mr-2"
             :disabled="loading"
         >
           Allocation Wizard
@@ -145,7 +153,7 @@
     </v-app-bar>
 
     <v-main>
-      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer" :key="indexer" :addIndexerAccount="addIndexerAccount" :loading="loading" @update-loading="updateLoading"></router-view>
+      <router-view :indexing-reward-cut="indexingRewardCut" :indexer="indexer" :key="indexer" :addIndexerAccount="addIndexerAccount" :loading="loading" @update-loading="updateLoading" :simulateClosingAllocations="[]"></router-view>
     </v-main>
 
 
