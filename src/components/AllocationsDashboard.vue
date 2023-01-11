@@ -124,6 +124,11 @@
           >
           {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards))).format('0,0') }} GRT
         </span>
+        <span
+          v-if="item.pending_rewards === -2"
+          >
+          error
+        </span>
 
       </template>
       <template v-slot:item.pending_rewards_cut="{ item }">
@@ -140,9 +145,14 @@
             v-if="item.pending_rewards_cut === -1 || (automaticIndexingRewards && item.pending_rewards === null)"
         ></v-progress-circular>
         <span
-            v-if="item.pending_rewards_cut !== null && item.pending_rewards_cut >= 0"
+            v-if="item.pending_rewards_cut !== null && item.pending_rewards_cut >= 0 && item.pending_rewards !== -2"
         >
           {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.pending_rewards_cut))).format('0,0') }} GRT
+        </span>
+        <span
+          v-if="item.pending_rewards === -2"
+          >
+          error
         </span>
       </template>
       <template v-slot:body.append>
@@ -1050,6 +1060,8 @@ export default {
           let bigNumber = this.$store.state.bigNumber;
           this.proxyContract.methods.getRewards(allocation.id).call(function(error, value) {
             console.log(value);
+            if(value === undefined)
+              value = -2
             allocation.pending_rewards = value;
             allocation.pending_rewards_cut = indexerCut(new bigNumber(value));
             console.log(allocation.pending_rewards);
