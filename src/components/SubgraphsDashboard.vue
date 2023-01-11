@@ -148,7 +148,7 @@
         {{ numeral(web3.utils.fromWei(item.currentVersion.subgraphDeployment.stakedTokens.toString())).format('0,0') }} GRT
       </template>
       <template v-slot:item.currentVersion.subgraphDeployment.network.id="{ item }">
-        {{ item.currentVersion.subgraphDeployment.network.id }}
+        {{ item.currentVersion.subgraphDeployment.network ? item.currentVersion.subgraphDeployment.network.id : "null" }}
       </template>
       <template v-slot:item.proportion="{ item }">
         {{ numeral(item.proportion*100).format('0,0.000') }}%
