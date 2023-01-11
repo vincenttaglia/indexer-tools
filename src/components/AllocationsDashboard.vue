@@ -72,10 +72,10 @@
                 v-bind="attrs"
                 v-on="on"
               >
-              {{ item.readableDuration }}
+              {{ item.epochDuration }} epochs
               </span>
             </template>
-            <span>{{ item.epochDuration }} epochs</span>
+            <span>{{ item.readableDuration }}</span>
           </v-tooltip>
         </span>
       </template>
