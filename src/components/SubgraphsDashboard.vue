@@ -304,7 +304,7 @@ export default {
       selected: [],
       noRewardsFilter: 0,
       loading: true,
-      networks: ["mainnet", "gnosis", "matic", "bsc", "goerli", "rinkeby"],
+      networks: ["mainnet", "gnosis", "arbitrum-one", "celo", "polygon", "avalanche", "goerli", "rinkeby"],
       networkFilter: [],
       id_key: 1,
       header_order: this.$store.state.subgraphHeaderOrder,
