@@ -67,6 +67,15 @@
             ></v-text-field>
           </td>
           <td>
+            <v-text-field
+                v-model="target_apr"
+                type="number"
+                label="Target APR"
+                @change="updateTargetApr"
+                class="mx-4"
+            ></v-text-field>
+          </td>
+          <td>
             <v-select
                 v-model="noRewardsFilter"
                 :items="[{text: 'Exclude Denied', action: 0}, {text:'Include Denied', action: 1}, {text: 'Only Denied', action: 2}]"
@@ -159,6 +168,9 @@
       <template v-slot:item.newapr="{ item }">
         {{ numeral(item.newapr).format('0,0.00') }}%
       </template>
+      <template v-slot:item.max_allo="{ item }">
+        {{ numeral(item.max_allo).format('0,0') }} GRT
+      </template>
       <template v-slot:item.dailyrewards="{ item }">
         {{ numeral(web3.utils.fromWei(web3.utils.toBN(item.dailyrewards))).format('0,0') }} GRT
       </template>
@@ -243,11 +255,13 @@ export default {
             }
             data.subgraphs[i].apr = this.newapr(subgraph.currentSignalledTokens, subgraph.currentVersion.subgraphDeployment.stakedTokens, "0");
             data.subgraphs[i].newapr = this.newapr(subgraph.currentSignalledTokens, stakedTokens, this.new_allocation);
+            data.subgraphs[i].max_allo = this.maxAllo(this.target_apr, subgraph.currentSignalledTokens, stakedTokens);
             data.subgraphs[i].dailyrewards = this.dailyrewards(subgraph.currentSignalledTokens, stakedTokens, this.new_allocation);
             data.subgraphs[i].dailyrewards_cut = this.indexerCut(data.subgraphs[i].dailyrewards);
           } else {
             data.subgraphs[i].apr = 0;
             data.subgraphs[i].newapr = 0;
+            data.subgraphs[i].max_allo = 0;
             data.subgraphs[i].dailyrewards = 0;
             data.subgraphs[i].dailyrewards_cut = 0;
           }
@@ -310,6 +324,7 @@ export default {
       header_order: this.$store.state.subgraphHeaderOrder,
       activateSynclist: false,
       activateBlacklist: true,
+      target_apr: this.$store.state.target_apr,
       header_objects: {
         0: {
           text: 'Img',
@@ -341,6 +356,7 @@ export default {
         11: { text: 'Total Indexing Rewards', value: 'currentVersion.subgraphDeployment.indexingRewardAmount'},
         12: { text: 'Deployment ID', value: 'currentVersion.subgraphDeployment.ipfsHash', sortable: false },
         13: { text: 'Network', value: 'currentVersion.subgraphDeployment.network.id'},
+        14: { text: 'Max Allocation', value: 'max_allo'}
       },
     }
   },
@@ -392,6 +408,44 @@ export default {
     simulateClosingAllocations: Array,
   },
   methods: {
+    maxAllo(target_apr_dec, signalledTokens, stakedTokens){
+      let BigNumber = this.$store.state.bigNumber;
+      let target_apr = new BigNumber(target_apr_dec).dividedBy(100);
+
+      // signalledTokens / totalTokensSignalled * issuancePerYear / apr - stakedTokens = maxAllocation
+      try{
+        return new BigNumber(signalledTokens)
+            .dividedBy(this.$store.state.graphNetwork.totalTokensSignalled)
+            .multipliedBy(this.$store.state.graphNetwork.issuancePerYear)
+            .dividedBy(target_apr)
+            .minus(stakedTokens)
+            .dividedBy(new BigNumber(10).pow(18));
+      }catch(e){
+        return 0;
+      }
+    },
+    updateTargetApr(){
+      this.$cookies.set("target_apr", this.target_apr);
+      this.$store.state.target_apr = this.target_apr;
+      
+      for(let i = 0; i < this.$store.state.subgraphs.length; i++){
+        let subgraph = this.$store.state.subgraphs[i];
+        if(subgraph.currentSignalledTokens > 0) {
+          let stakedTokens;
+
+          let allo = this.simulateClosingAllocations.find(e => {
+            return e.subgraphDeployment.ipfsHash === subgraph.currentVersion.subgraphDeployment.ipfsHash;
+          });
+
+          if(allo){
+            stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens - allo.allocatedTokens;
+          } else{
+            stakedTokens = subgraph.currentVersion.subgraphDeployment.stakedTokens;
+          }
+          this.$store.state.subgraphs[i].max_allo = this.maxAllo(this.target_apr, subgraph.currentSignalledTokens, stakedTokens);
+        }
+      }
+    },
     updateHeaderOrder ( evt ) {
           let headers = this.header_order;
           let old_index = evt.oldIndex;
@@ -486,6 +540,7 @@ export default {
             || index[0] == 'newapr'
             || index[0] == 'dailyrewards'
             || index[0] == 'dailyrewards_cut'
+            || index[0] == 'max_allo'
         ) {
           if (!isDesc[0]) {
             return t(a, index[0]).safeObject - t(b, index[0]).safeObject;
